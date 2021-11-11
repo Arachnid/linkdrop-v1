@@ -1,0 +1,51 @@
+@import "variables";
+
+.icon {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+}
+
+.title {
+  font-size: 14px;
+  margin-bottom: 24px;
+
+  b {
+    font-family: 'Inter-Bold';
+  }
+
+  span {
+    font-family: 'Inter-Regular';
+    color: $blueColor;
+  }
+}
+
+.button {
+  margin-bottom: 12px;
+  max-width: 343px;
+}
+
+.terms {
+  margin-bottom: 25px;
+  font-size: 12px;
+  color: #C5C7CD;
+  font-family: 'Inter-Bold';
+
+  a {
+    text-decoration: underline;
+    color: #C5C7CD;
+  }
+}
+
+.tokenIcon {
+  margin-bottom: 30px;
+}
+
+.tokenIconNft {
+  width: 227px!important;
+  height: auto!important;
+}
+
+.wallet span {
+  font-family: 'Inter-Medium';
+}

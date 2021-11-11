@@ -1,0 +1,275 @@
+@import "variables";
+
+.title {
+  font-size: 14px;
+  margin-bottom: 24px;
+
+  b {
+    font-family: 'Inter-Bold';
+  }
+
+  span {
+    font-family: 'Inter-Regular';
+    color: $blueColor;
+  }
+}
+
+.container {
+  padding: 0 20px;
+}
+
+.button {
+  margin-bottom: 10px;
+}
+
+.icon {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+}
+
+.tokenIcon {
+  margin-bottom: 30px;
+}
+
+.tokenIconNft {
+  width: 227px!important;
+  height: auto!important;
+}
+
+.description {
+  font-size: 14px;
+  margin-bottom: 8px;
+
+  a {
+    color: $blackColor;
+  }
+}
+
+.descriptionMarginBottom {
+  margin-bottom: 16px;
+}
+
+.alert {
+  margin-bottom: 40px;
+}
+
+.descriptionHidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.form {
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  margin: 0 auto;
+  transform: translateY(32px);
+  text-align: center;
+  min-height: 50px;
+}
+
+.formLoading {
+  .formLoadingOverlay {
+    display: block;
+  }
+}
+
+.formFinished {
+  .formSuccessOverlay {
+    display: block;
+  }
+}
+
+.formFailed {
+  .formFailedOverlay {
+    display: block;
+  }
+}
+
+.fakeCheckbox {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 20px;
+    margin-right: 6px;
+  }
+}
+
+.formOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  display: none;
+  border-radius: 5px;
+}
+
+.formLoadingOverlay {
+  background: rgba(255, 255, 255, .7);
+}
+
+.formSuccessOverlay,
+.formFailedOverlay {
+  border: 1px solid $dbGrey;
+  font-family: 'Inter-Medium';
+  font-size: 20px;
+  text-align: center;
+  line-height: 50px;
+  color: #FFF;
+}
+
+.formSuccessOverlay {
+  background: $successColor;
+}
+
+.formFailedOverlay {
+  background: $redColor;
+}
+
+.formContent {
+  left: 100%;
+  opacity: 0;
+  z-index: 1;
+  width: 100%;
+  top: 0px;
+  position: absolute;
+}
+
+.formOpenButton {
+  cursor: pointer;
+  transition: all .3s;
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  left: 0;
+}
+
+.formShow .formOpenButton {
+  animation: titleOut .5s forwards;
+}
+
+.formShow .formContent {
+  animation: formIn .5s forwards;
+}
+
+.formHide .formOpenButton {
+  animation: titleIn .5s forwards;
+}
+
+.formHide .formContent {
+  animation: formOut .5s forwards;
+}
+
+.input {
+  max-width: 343px;
+  width: 100%;
+  padding-right: 50px;
+  text-decoration: none;
+  text-transform: lowercase;
+  -webkit-appearance: none;
+
+  &::placeholder {
+    text-transform: none;
+  }
+}
+
+.formInput {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.formButton {
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  width: 36px;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $dbBlue;
+}
+
+.disableTranslateY {
+  transform: translateY(0px)
+}
+
+@keyframes titleOut {
+  0% {
+    left: 0%;
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+    display: none;
+    left: -100%;
+    z-index: 1;
+  }
+}
+
+@keyframes formIn {
+  0% {
+    left: 100%;
+    opacity: 0;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    display: block;
+    left: 0%;
+    z-index: 2;
+  }
+}
+
+@keyframes titleIn {
+  0% {
+    opacity: 0;
+    display: none;
+    left: -100%;
+    z-index: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    left: 0%;
+    opacity: 1;
+  }
+}
+
+@keyframes formOut {
+  0% {
+    opacity: 1;
+    display: block;
+    left: 0%;
+    z-index: 2;
+  }
+
+  80% {
+    opacity: 0;
+  }
+
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
