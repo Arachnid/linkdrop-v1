@@ -52,7 +52,11 @@ export const deploy = async () => {
 
     await proxyFactory.deployed()
 
-
+    spinner.info(
+      term.bold.green.str(`Adding ${RELAYER_ADDRESS} to whitelisted relayers`)
+    )
+    const tx = await proxyFactory.addRelayer(RELAYER_ADDRESS)
+    term.bold(`Tx Hash: ^g${tx.hash}\n`)
   } catch (err) {
     spinner.fail(term.bold.red.str('Failed to deploy contract'))
     throw newError(err)

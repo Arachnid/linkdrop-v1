@@ -1,5 +1,6 @@
 import React from 'react'
 import { translate } from 'decorators'
+import classNames from 'classnames'
 import styles from './styles.module'
 import commonStyles from '../styles.module'
 import { RoundedButton } from 'components/common'

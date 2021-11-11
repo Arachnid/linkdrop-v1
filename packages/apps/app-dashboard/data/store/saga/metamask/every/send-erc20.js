@@ -2,7 +2,7 @@ import { put, select } from 'redux-saga/effects'
 import { mocks, defineJsonRpcUrl } from '@linkdrop/commons'
 import { utils, ethers } from 'ethers'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
-import ERC20Mock from 'contracts/ERC20Mock.json'
+import TokenMock from 'contracts/TokenMock.json'
 
 const generator = function * ({ payload }) {
   try {
@@ -15,7 +15,7 @@ const generator = function * ({ payload }) {
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
     const gasPrice = yield provider.getGasPrice()
     const oneGwei = ethers.utils.parseUnits('1', 'gwei')
-    const tokenContract = yield new web3Provider.eth.Contract(ERC20Mock.abi, tokenAddress)
+    const tokenContract = yield new web3Provider.eth.Contract(TokenMock.abi, tokenAddress)
     const proxyAddress = yield select(generator.selectors.proxyAddress)
     const amountFormatted = utils.parseUnits(String(tokenAmount), decimals)
     const approveData = yield tokenContract.methods.approve(proxyAddress, String(amountFormatted)).encodeABI()

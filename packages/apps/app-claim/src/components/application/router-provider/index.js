@@ -16,6 +16,7 @@ export default function RouterProvider () {
   }, [])
 
   if (!context.active && !context.error) {
+
     return <Loading />
   } else if (context.error) {
     return <ConnectedRouter history={history}>

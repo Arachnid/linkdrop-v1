@@ -1,0 +1,63 @@
+@import "variables";
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.title {
+  max-width: 300px;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-family: Inter, Helvetrica, Arial, sans-serif;
+  font-weight: 500;
+
+  a {
+    color: #007AFF;
+  }
+}
+
+.button {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.twitterButton {
+  background: #1DA1F2!important;
+}
+
+.input {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid $dbGrey!important;
+
+  &::placeholder {
+    color: $dbGrey!important;
+  }
+}
+
+.errors {
+  color: #FF2D55;
+  font-size: 14px;
+  max-width: 300px;
+  text-align: center;
+  max-width: 300px;
+}
+
+.description {
+  margin-bottom: 10px;
+  color: #979797;
+  font-size: 14px;
+  text-align: center;
+  max-width: 300px;
+}

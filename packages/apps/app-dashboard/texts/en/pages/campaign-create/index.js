@@ -97,7 +97,7 @@ export default {
     scriptInstruction: 'To generate more than {{linksLimit}} links at a time',
     scriptDescription: 'This script will deploy the linkdrop proxy contract for your campaign and top it up with the required ETH amount for covering fee costs as well as approve your ERC20 tokens.',
     sendViaIntercom: 'Have a question — send us a message via <span>Intercom</span>',
-    gasPriceAttention: '⚠️ On Ethereum Mainnent recipients pay gas fees to claim themselves.',
+    gasPriceAttention: '⚠️ Due to high gas prices, we can\'t guarantee that links will be claimed by receivers in time. <a target="_blank" href="mailto:hi@linkdrop.io">Contact us</a>, we’ll help.',
     codeBlockScript: `{
   "LINKDROP_MASTER_ADDRESS": "{{masterAddress}}",
   "SIGNING_KEY": "{{signingKey}}",
@@ -123,10 +123,10 @@ const linkdropSDK = LinkdropSDK({
   linkdropMasterAddress: '{{masterAddress}}',
   factoryAddress: '{{factoryAddress}}',
   chain: '{{chain}}',
-  claimHost:  'https://v1-1.claim.linkdrop.io',
   // optional params
   // jsonRpcUrl = <JSON_RPC_URL>, // https://{{chain}}.infura.io by default,
   // apiHost = <API_HOST>, // https://{{chain}}.linkdrop.io by default
+  // claimHost = <CLAIM_HOST>, // 'https://claim.linkdrop.io' by default
 })
 
 // generate links for {{symbol}} and ERC20
@@ -156,10 +156,10 @@ const linkdropSDK = LinkdropSDK({
   linkdropMasterAddress: '{{masterAddress}}',
   factoryAddress: '{{factoryAddress}}',
   chain: '{{chain}}',
-  claimHost:  'https://v1-1.claim.linkdrop.io',
   // optional params
   // jsonRpcUrl = <JSON_RPC_URL>, // https://{{chain}}.infura.io by default,
   // apiHost = <API_HOST>, // https://{{chain}}.linkdrop.io by default
+  // claimHost = <CLAIM_HOST>, // 'https://claim.linkdrop.io' by default
 })
 
 // generate links for ERC721
@@ -173,40 +173,6 @@ const {
   weiAmount: {{weiAmount}}, // Amount of wei per claim
   nftAddress: '{{tokenAddress}}', // ERC721 token address
   tokenId: <TOKEN_ID>, // ID of individual ERC721 token
-  expirationTime: 12345678910, // Link expiration time
-  campaignId: {{campaignId}} // Campaign id
-})
-`,
-    codeBlockErc1155: `// installation: yarn add @linkdrop/sdk
-// import library
-const LinkdropSDK = require('@linkdrop/sdk')
-
-// OR
-import LinkdropSDK from '@linkdrop/sdk'
-
-// initialization
-const linkdropSDK = LinkdropSDK({
-  linkdropMasterAddress: '{{masterAddress}}',
-  factoryAddress: '{{factoryAddress}}',
-  chain: '{{chain}}',
-  claimHost:  'https://v1-1.claim.linkdrop.io',
-  // optional params
-  // jsonRpcUrl = <JSON_RPC_URL>, // https://{{chain}}.infura.io by default,
-  // apiHost = <API_HOST>, // https://{{chain}}.linkdrop.io by default
-})
-
-// generate links for ERC1155
-const {
-  url,
-  linkId,
-  linkKey,
-  linkdropSignerSignature
-} = await linkdropSDK.generateLinkERC1155({
-  signingKeyOrWallet: '{{linkdropSigner}}', // Signing private key or ethers.js Wallet instance
-  weiAmount: {{weiAmount}}, // Amount of wei per claim
-  nftAddress: '{{tokenAddress}}', // ERC721 token address
-  tokenId: <TOKEN_ID>, // ID of individual ERC721 token
-  tokenAmount: <TOKEN_AMOUNT>,
   expirationTime: 12345678910, // Link expiration time
   campaignId: {{campaignId}} // Campaign id
 })

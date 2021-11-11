@@ -44,21 +44,6 @@ class Campaign {
     })
   }
 
-  prepareNewERC1155Data ({ tokenAmount, wallet, ethAmount, tokenIds, tokenSymbol, tokenType, linksAmount }) {
-    this.actions.dispatch({
-      type: '*CAMPAIGNS.PREPARE_NEW_ERC1155_DATA',
-      payload: {
-        tokenAmount,
-        wallet,
-        tokenType,
-        ethAmount,
-        tokenIds,
-        tokenSymbol,
-        linksAmount
-      }
-    })
-  }
-
   createProxyAddress ({ campaignId }) {
     this.actions.dispatch({ type: '*CAMPAIGNS.CREATE_PROXY_ADDRESS', payload: { campaignId } })
   }

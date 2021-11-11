@@ -24,7 +24,7 @@ if (relayerPrivateKey == null || relayerPrivateKey === '') {
 }
 
 class AutoNonceWallet extends ethers.Wallet {
-  sendTransaction(transaction) {
+  sendTransaction (transaction) {
     if (transaction.nonce == null) {
       if (this._noncePromise == null) {
         this._noncePromise = this.provider.getTransactionCount(this.address)
@@ -37,13 +37,12 @@ class AutoNonceWallet extends ethers.Wallet {
 }
 
 class RelayerWalletService {
-  constructor() {
+  constructor () {
     this.provider = new ethers.providers.JsonRpcProvider(jsonRpcUrl)
     this.relayerWallet = new AutoNonceWallet(relayerPrivateKey, this.provider)
-    // this.relayerWallet = new ethers.Wallet(relayerPrivateKey, this.provider)
   }
 
-  async getGasPrice() {
+  async getGasPrice () {
     let gasPrice
 
     if (!DEFAULT_GAS_PRICE || DEFAULT_GAS_PRICE === 'auto') {

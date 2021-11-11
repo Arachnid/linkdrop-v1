@@ -1,20 +1,12 @@
 import { put, select, all } from 'redux-saga/effects'
 import { ethers } from 'ethers'
-import ERC721Mock from 'contracts/ERC721Mock.json'
+import NFTMock from 'contracts/NFTMock.json'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
 import { defineJsonRpcUrl, defineNetworkName } from '@linkdrop/commons'
 import { getERC721TokenData } from 'data/api/tokens'
 
 const defineSymbol = function * ({ tokenContract, address }) {
   try {
-
-    yield put({ type: 'USER.SET_LOADING', payload: { loading: true } })
-    const { tokenAddress, chainId } = payload
-    yield put({ type: 'TOKENS.SET_TOKEN_ADDRESS', payload: { address: tokenAddress } })
-    yield put({ type: 'TOKENS.SET_TOKEN_TYPE', payload: { tokenType: 'erc721' } })
-    const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
-    const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-    const tokenContract = yield new ethers.Contract(tokenAddress, ERC721Mock.abi, provider)
     const symbol = yield tokenContract.symbol()
     return symbol
   } catch (e) {
@@ -39,7 +31,7 @@ const generator = function * ({ payload }) {
   const networkName = defineNetworkName({ chainId })
   const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
   const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-  const tokenContract = yield new ethers.Contract(address, ERC721Mock.abi, provider)
+  const tokenContract = yield new ethers.Contract(address, NFTMock.abi, provider)
   // const symbol = yield defineSymbol({ tokenContract, address })
   // let metadataURL = ''
   // let image = address.toLowerCase() === '0xc94edae65cd0e07c17e7e1b6afb46589297313ae' ? imagePreview : ''

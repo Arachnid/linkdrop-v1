@@ -8,6 +8,9 @@ export const create = async (req, res) => {
   if (email == null || email === '') {
     throw new BadRequestError('User email should be provided')
   }
+  if (address == null || address === '') {
+    throw new BadRequestError('User address should be provided')
+  }
 
   const user = new User({ email, address, data })
 

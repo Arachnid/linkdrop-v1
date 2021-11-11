@@ -1,13 +1,13 @@
 import React from 'react'
 import { Provider } from 'react-redux'
 import { Web3ReactProvider } from "@web3-react/core"
+import connectors from './connectors'
 import RouterProvider from './router-provider'
 import store from 'data/store'
-import { ethers } from 'ethers'
+import Web3 from 'web3'
 
-function getLibrary (provider) {
-  const ethersProvider = new ethers.providers.Web3Provider(provider)
-  return ethersProvider
+function getLibrary(provider) {
+  return new Web3(provider);
 }
 
 class Application extends React.Component {

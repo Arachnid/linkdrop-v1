@@ -6,7 +6,6 @@ class Routing {
   }
 
   goTo ({ location }) {
-    console.log({ history })
     history.push(location)
   }
 }

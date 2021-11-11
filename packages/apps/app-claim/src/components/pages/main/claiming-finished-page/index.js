@@ -1,135 +1,89 @@
 import React from 'react'
 import { Alert, Icons } from '@linkdrop/ui-kit'
-import { Input, RoundedButton } from 'components/common'
+import { Input } from 'components/common'
 import { translate, actions } from 'decorators'
 import styles from './styles.module'
 import commonStyles from '../styles.module'
 import { getDappData } from 'helpers'
-import { getHashVariables, defineEtherscanUrl, defineNetworkName, shortenString } from '@linkdrop/commons'
+import { getHashVariables, defineEtherscanUrl } from '@linkdrop/commons'
 import classNames from 'classnames'
-import FakeCheckbox from './fake-checkbox.png'
+import { contractAddress } from 'app.config.js'
+import { RoundedButton } from 'components/common'
 
 @actions(({
   tokens: {
     transactionId,
-    transactionStatus
+    transactionStatus,
+    tokenId
   },
   user: {
     loading,
     sendDataStatus
+  },
+  contract: {
+    icon,
+    symbol
   }
 }) => ({
   transactionId,
   transactionStatus,
+  tokenId,
   loading,
-  sendDataStatus
+  sendDataStatus,
+  icon,
+  symbol
 }))
 @translate('pages.main')
 class ClaimingFinishedPage extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      formShow: false,
-      email: '',
-      iconType: 'default'
-    }
-  }
-
   render () {
-    const { chainId, dappId, subscribe, tokenId, nftAddress } = getHashVariables()
-    const { formShow, email, iconType } = this.state
-    const { transactionId, icon, amount, wallet, symbol, transactionStatus, loading, sendDataStatus } = this.props
-    return <div className={classNames(commonStyles.container, styles.container, {
-      [styles.formShow]: formShow
-    })}>
-      {this.renderIcon({ transactionStatus, icon, symbol, nftAddress, iconType })}
-      {this.renderTitles({ transactionStatus, amount, symbol, wallet })}
+    const { chainId, transactionId, amount, tokenId, wallet, icon, symbol, transactionStatus, loading, sendDataStatus, title } = this.props
+    return <div className={commonStyles.container}>
+      {tokenId ? <img
+        className={styles.icon}
+        src={icon}
+      /> : <Alert
+        icon={transactionStatus === 'failed' ? <Icons.Exclamation /> : <Icons.Check />}
+        className={styles.alert}
+      />}
+      {this.renderTitles({ transactionStatus, amount, symbol, title })}
+      {this.renderTokenCheckInstruction({ tokenId, chainId })}
       {this.renderEtherscanUrl({ transactionId, chainId })}
-      {this.renderDappButton({ dappId, transactionId, transactionStatus })}
-      {this.renderOpenseaButton({ tokenId, nftAddress, chainId })}
-      {this.renderSubscribeForm({ subscribe, wallet, email, loading, sendDataStatus, transactionId })}
     </div>
   }
 
 
-  renderIcon ({ transactionStatus, icon, symbol, nftAddress, iconType }) {
-    if (transactionStatus === 'failed') {
-      return <Alert
-        icon={<Icons.Exclamation />}
-        className={styles.alert}
-      />
-    }
-
-    if (!icon || iconType === 'blank') {
-      return <Alert
-        icon={<Icons.Check />}
-        className={styles.alert}
-      />
-    }
-
-    return <Alert
-      noBorder={symbol !== 'ETH' && symbol !== 'xDAI'}
-      className={classNames(styles.tokenIcon, {
-        [styles.tokenIconNft]: nftAddress
-      })}
-      icon={<img
-        onError={_ => {
-          if (iconType === 'blank') { return }
-          this.setState({ iconType: 'blank' })
-        }}
-        className={styles.icon}
-        src={icon}
-      />}
-    />
-  }
-
-  // src={iconType === 'defaut' ? icon : <Icons.Star />}
-
-
-  renderTitles ({ transactionStatus, amount, symbol, wallet }) {
-    if (transactionStatus === 'failed') {
+  renderTitles ({ transactionStatus, amount, symbol, title }) {
+    if (title) {
       return <div
         className={styles.title}
-        dangerouslySetInnerHTML={{
-          __html: this.t('titles.claimFailed')
-        }}
-      />
-    }
-    const token = amount ? `${parseFloat(amount)} ${symbol}` : symbol
-    if (wallet) {
-      return <div
-        className={styles.title}
-        dangerouslySetInnerHTML={{
-          __html: this.t('titles.claimedWithWallet', {
-            token,
-            wallet: shortenString({ wallet })
-          })
-        }}
-      />
+      >
+        {title}
+      </div>
     }
     return <div
       className={styles.title}
       dangerouslySetInnerHTML={{
-        __html: this.t('titles.claimedWithNoWallet', {
-          token
+        __html: this.t(transactionStatus === 'failed' ? 'titles.claimFailed' : 'titles.tokensClaimed', {
+          tokens: `${amount || ''} ${symbol}`
         })
       }}
     />
-    
   }
 
   renderEtherscanUrl ({ transactionId, chainId }) {
-    if (!transactionId) { return null }
     const scannerDct = {
       "100": 'seeDetailsBlockscout',      
       "97": 'seeDetailsBscScan',
       "56": 'seeDetailsBscScan',
       "137": 'seeDetailsExplorer',
+      "80001": 'seeDetailsExplorer'
     }
     const seeDetails = scannerDct[String(chainId)] || 'seeDetails'
 
     return <div
-      className={styles.description}
+      className={classNames(styles.description, {
+        [styles.descriptionHidden]: !transactionId
+      })}
       dangerouslySetInnerHTML={{
         __html: this.t(`titles.${seeDetails}`, {
           transactionLink: `${defineEtherscanUrl({ chainId })}tx/${transactionId}`
@@ -138,89 +92,29 @@ class ClaimingFinishedPage extends React.Component {
     />
   }
 
-  renderDappButton ({ dappId, transactionId, transactionStatus }) {
-    if (transactionStatus === 'failed') { return null }
-    const dappData = getDappData({ dappId })
-    if (!dappData) { return null }
-    return <RoundedButton
-      className={classNames(styles.button, {
-        [styles.disableTranslateY]: !transactionId
-      })}
-      target='_blank'
-      href={dappData.link}
-    >
-      {this.t('buttons.goTo', { dapp: dappData.name })}
-    </RoundedButton>
-  }
 
-  renderOpenseaButton ({ tokenId, nftAddress, chainId }) {
-    if (!tokenId || !nftAddress) { return null }
-    const openseaUrl =  this.defineOpenseaURL({ chainId, tokenId, nftAddress })
+  renderTokenCheckInstruction ({ tokenId, chainId }) {
+    const link = tokenId ? this.getOpenseaUrl({ tokenId, chainId }) : 'https://opensea.io/collection/gzy-first-come'
+    const title = tokenId ? 'Open on Opensea' : 'View collection on OpenSea'
     return <RoundedButton
       className={styles.button}
-      target='_blank'
-      href={openseaUrl}
+      onClick={_ => {
+        gtag('event', 'opensea_opened', {
+          'event_label': 'opensea opened',
+          'event_category': 'opensea_opened'
+        });
+        window.open(link, '_blank')
+      }}
     >
-      View token on OpenSea
+      {title}
     </RoundedButton>
   }
 
-  defineOpenseaURL ({ chainId, tokenId, nftAddress }) {
-    const networkName = defineNetworkName({ chainId })
-    if (networkName === 'mainnet') {
-      return `https://opensea.io/assets/${nftAddress}/${tokenId}`
+  getOpenseaUrl ({ tokenId, chainId }) {
+    if (Number(chainId) === 80001) {
+      return `https://testnets.opensea.io/assets/mumbai/${contractAddress}/${tokenId}`
     }
-    if (networkName === 'matic') {
-      return `https://opensea.io/assets/matic/${nftAddress}/${tokenId}`
-    }
-    return `https://testnets.opensea.io/assets/${networkName}/${nftAddress}/${tokenId}`
-   }
-
-  renderSubscribeForm ({ subscribe, email, loading, sendDataStatus, transactionId, wallet }) {
-    if (subscribe && subscribe === 'false') { return null }
-    return <div className={classNames(styles.form, {
-      [styles.formLoading]: loading,
-      [styles.formFinished]: sendDataStatus === 'success',
-      [styles.formFailed]: sendDataStatus === 'failed',
-      [styles.disableTranslateY]: !transactionId
-    })}>
-      <div className={classNames(styles.formOverlay, styles.formLoadingOverlay)} />
-      <div className={classNames(styles.formOverlay, styles.formSuccessOverlay)}>{this.t('titles.subscribed')}</div>
-      <div className={classNames(styles.formOverlay, styles.formFailedOverlay)}>{this.t('titles.failed')}</div>
-
-      <RoundedButton
-        onClick={_ => this.setState({ formShow: true })}
-        className={styles.formOpenButton}
-        inverted
-      >
-        {this.t('titles.formTitle')}
-      </RoundedButton>
-
-
-
-      <div className={styles.formContent}>
-        <div className={styles.formInput}>
-          <Input
-            value={email}
-            type='email'
-            placeholder={this.t('titles.yourEmail')}
-            className={styles.input}
-            onChange={({ value }) => this.setState({ email: value })}
-          />
-          <div
-            className={styles.formButton}
-            onClick={_ => {
-              this.actions().user.saveData({ email, account: wallet })
-            }}
-          >
-            <Icons.ContinueArrow />
-          </div>
-        </div>
-        <div className={styles.fakeCheckbox}>
-          <img src={FakeCheckbox} /> {this.t('titles.fakeCheckbox')}
-        </div>
-      </div>
-    </div>
+    return `https://opensea.io/assets/matic/${contractAddress}/${tokenId}`
   }
 }
 

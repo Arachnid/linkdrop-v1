@@ -1,0 +1,35 @@
+@import "variables";
+
+.title {
+  max-width: 300px;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 40px;
+  font-family: Inter, Helvetrica, Arial, sans-serif;
+  font-weight: 500;
+}
+
+.button {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.description {
+  margin-bottom: 10px;
+  color: #979797;
+  font-size: 14px;
+  text-align: center;
+  max-width: 300px;
+}
+
+.fakeButton {
+  opacity: 0;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  position: fixed;
+  right: 0px;
+  top: 0px;
+}
+

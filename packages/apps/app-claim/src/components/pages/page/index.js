@@ -1,23 +1,54 @@
 import React from 'react'
-import { Header, Footer } from '@linkdrop/ui-kit'
+import { Header, Footer, Icons, RetinaImage } from '@linkdrop/ui-kit'
 import styles from './styles.module'
-import { translate } from 'decorators'
+import { translate, actions } from 'decorators'
 import text from 'texts'
-import cn from 'classnames'
-import { getHashVariables } from '@linkdrop/commons'
+import { getImages } from 'helpers'
 
+@actions(({
+  user: {
+    step
+  }
+}) => ({
+  step
+}))
 @translate('pages.page')
 class Page extends React.Component {
   render () {
-    const { variant } = getHashVariables()
+    const { step } = this.props
+    const defineTitle = () => {
+      switch(step) {
+        case 4:
+          return this.t('titles.addNewNetwork')
+        case 6:
+        case 7:
+          return this.t('titles.tweetToGetNFT')
+        case 8:
+        case 12:
+          return this.t('titles.youAreIn')
+        case 11:
+          return <div className={styles.headerContent}>
+            <span
+              onClick={_ => this.actions().user.setStep({ step: 1 })}
+            >
+              <RetinaImage
+                width={25}
+                className={styles.backArrow}
+                {...getImages({ src: 'back-arrow' })}
+              />
+            </span>
+            {this.t('titles.verifyEligibility')}
+          </div>
+        default:
+          return this.t('titles.getTokens')
+      }
+    }
     return <div className={styles.container}>
-      {!variant && <Header
-        title={this.t('titles.getTokens')}
-      />}
+      <Header
+        title={defineTitle()}
+      />
       <div
-      className={cn(styles.main, {
-        [styles.mainNoHeader]: variant
-      })}>
+      className={styles.main}>
         {this.props.children}
       </div>
       <Footer

@@ -4,22 +4,90 @@
 		<title>You have received a digital asset, click to claim it</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./assets/images/favicon.png">
-    <meta property="og:image" content="./assets/images/preview.png" />
-		<script src="https://storage.googleapis.com/terminal-sdk/metamask/latest/metamask-latest.min.js"></script>
+    <link rel="icon" href="<%=require('./assets/images/favicon.png')%>">	
+    <meta property="og:image" content="<%=require('./assets/images/token.jpeg')%>" />
+		<% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+			<link rel="stylesheet" href="<%=htmlWebpackPlugin.files.chunks[chunk].css %>">
+		<% } %>
 		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145194373-4"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-BR1ENW2BG7"></script>
 		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
 
-			gtag('config', 'UA-145194373-4');
+		  gtag('config', 'G-BR1ENW2BG7');
 		</script>
+		<style type="text/css">
+
+			body, html {
+				margin: 0;
+			}
+			.loading {
+				min-height: 100vh;
+			}
+			.loader {
+			  border-radius: 50px;
+			  line-height: 100px;
+			  text-align: center;
+			  width: 100px;
+			  height: 100px;
+			  position: absolute;
+			  top: 50%;
+			  left: 50%;
+			  transform: translate(-50%, -50%);
+			  text-transform: uppercase;
+			  letter-spacing: 0.05em;
+			}
+
+			.loader:before,
+			.loader:after {
+			    content: '';
+			    position: absolute;
+			    top: 0;
+			    left: 0;
+			    width: 100%;
+			    height: 100%;
+			    background: rgba(0, 0, 0, 1);
+			    border-radius: 50px;
+			    opacity: 0;
+			  }
+			  
+			.loader:before {
+			  transform: scale(1);
+			  animation: pulse 2s infinite linear;
+			}
+			  
+			.loader:after {
+			  animation: pulse 2s 1s infinite linear;
+			}
+
+			@keyframes pulse {
+			  0% {
+			    transform: scale(0.6);
+			    opacity: 0;
+			  }
+			  33% {
+			    transform: scale(1);
+			    opacity: 1;
+			  }
+			  100% {
+			    transform: scale(1.4);
+			    opacity: 0;
+			  }
+			}
+		</style>
 
 	</head>
 
 	<body>
-		<div class='application' id='application'></div>
+		<div class='application' id='application'>
+			<div class="loading">
+				<div class="loader"></div>
+			</div>
+		</div>
 	</body>
+	<% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+		<script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+	<% } %>
 </html>

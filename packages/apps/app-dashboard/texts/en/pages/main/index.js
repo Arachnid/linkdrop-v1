@@ -6,10 +6,8 @@ export default {
     networkNotSupported: 'Network is not supported',
     erc20Campaign: 'ERC20 Campaign',
     erc721Campaign: 'ERC721 Campaign',
-    erc1155Campaign: 'ERC1155 Campaign',
     erc20Eth: 'ERC20 + {{symbol}}',
     erc721Eth: 'ERC721 + {{symbol}}',
-    erc1155Eth: 'ERC1155 + {{symbol}}',
     customSolutions: 'Need other features?',
     allAssets: 'ERC721 / ERC20 + {{symbol}}'
   },
@@ -17,7 +15,7 @@ export default {
     networkNotSupported: '<div>Simply open MetaMask and switch over to:</div><div><span>Main Ethereum Network</span> or <span>Test Networks:</span></div><div><span>Ropsten, Rinkeby, Kovan, Görli</span></div>',
     listOfLinks: 'List of links with encoded tokens prepared to distribute',
     incentivizeCustomer: 'Reach out and let us know what other features you are interested in',
-    gasPriceAttention: '⚠️ On Ethereum Mainnent recipients pay gas fees to claim themselves.'
+    gasPriceAttention: '⚠️ Due to high gas prices, we can\'t guarantee that links will be claimed by receivers in time. We recommend <a target="_blank" href="mailto:hi@linkdrop.io">contacting us</a> before you setting up a new campaign so we can help with gas.'
   },
   buttons: {
     signIn: 'Sign In',

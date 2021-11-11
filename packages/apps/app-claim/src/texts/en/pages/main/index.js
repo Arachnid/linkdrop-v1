@@ -31,20 +31,32 @@ export default {
     variantInstructions: {
       _1: '1. Copy this page URL',
       _2: '2. Paste it in the dApp browser after the wallet is installed'
-    },
-    addCustomNetwork: 'To get NFT you need to add a {{chainName}} network',
+    }
+    ,addCustomNetwork: 'To get NFT you need to add a {{chainName}} network',
     addCustomNetworkText: 'This allow this network to be used within Metamask',
+    uniqueSignature: 'Your tweet may contain any text but must have the unique signature: sig:{{sig}}',
+    toGetVarified: 'To get verified paste the tweet link below',
+    pasteLink: 'Paste twitter link here',
+    tokenFoundTitle: 'We found 50k followers NFT in your wallet',
+    tokenFoundSubtitle: 'That means you’re lucky and eligible to claim this NFT',
+    tokenFoundHeader: 'You’re In!',
+    verifyEligibilityTitle: 'To get verified paste your Twitter handle below',
+    verifyEligibilityDescription: 'GZY FIRST COMIG on blockchain and hanging the party. EPIC moment! ONLY 100 invites! Owners of this GZY automatically enter in the whitelist of THE GREAT GZY REVEAL EVENT. This is KryptoChurch. In Blockchain We Trust.',
+    verifyEligibilityPlaceholder: 'Your twitter handle',
+    eligibilityVerifiedTitle: 'All good, you’re eligible to claim this NFT',
+    checkIfEligible: 'Check if you’re eligable for this tweetdrop →',
+    alreadyClaimed: "You have already claimed your NFT",
     claimWithWallet: 'Claim <b>{{token}}</b> now<br/>to address: <span>{{wallet}}</span>',
     claimWithNoWallet: 'Claim <b>{{token}}</b>',
-    claimedWithWallet: '<b>{{token}}</b><br/>Address: <span>{{wallet}}</span>',
-    claimedWithNoWallet: '<b>{{token}}</b>'
+    campaignIsOver: 'All <span>NFTs</span> have been claimed.<br>Follow <a target="_blank" href="https://twitter.com/LinkdropHQ">LinkdropHQ</a><br>for new drops',
   },
   buttons: {
     useWallet: 'Use {{wallet}}',
     copyLink: 'Copy link',
     goTo: 'Go to {{dapp}}',
     connect: 'Connect',
-    addNetwork: 'Add {{chainName}}'
+    addNetwork: 'Add {{chainName}}',
+    claim: "Claim"
   },
   errors: {
     LINKDROP_PROXY_CONTRACT_PAUSED: {
@@ -107,10 +119,6 @@ export default {
         _2: '2. Switch Network to <span>{{network}}</span>',
         _3: '3. Back to wallet’s DApp browser then reload the claiming page and follow instructions'
       }
-    },
-    ALL_NFTS_HAVE_BEEN_CLAIMED: {
-      title: 'All NFTs have been claimed',
-      description: ''
     },
     NEED_METAMASK: {
       title: 'You need a wallet to claim tokens',

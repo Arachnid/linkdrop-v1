@@ -10,7 +10,6 @@ const generator = function * ({ payload }) {
     yield put({ type: 'USER.SET_LOADING', payload: { loading: true } })
     const erc20Balance = yield select(generator.selectors.tokenAmount)
     const ethBalance = yield select(generator.selectors.ethAmount)
-    const chainId = yield select(generator.selectors.chainId)    
     const weiAmount = utils.parseEther(convertFromExponents(ethBalance || 0))
     const decimals = yield select(generator.selectors.decimals)
     const defaultWallet = yield select(generator.selectors.defaultWallet)
@@ -35,7 +34,7 @@ const generator = function * ({ payload }) {
 
     yield delay(10)
     const links = yield select(generator.selectors.links)
-    const linksUpdated = links.concat(Number(chainId) === 1 ? `${link.url}&manual=true` : link.url)
+    const linksUpdated = links.concat(link.url)
     yield put({ type: 'CAMPAIGNS.SET_LINKS', payload: { links: linksUpdated } })
     yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
   } catch (e) {
@@ -54,6 +53,5 @@ generator.selectors = {
   tokenAddress: ({ tokens: { address } }) => address,
   sdk: ({ user: { sdk } }) => sdk,
   defaultWallet: ({ campaigns: { defaultWallet } }) => defaultWallet,
-  campaignId: ({ campaigns: { id } }) => id,
-  chainId: ({ user: { chainId } }) => chainId
+  campaignId: ({ campaigns: { id } }) => id
 }

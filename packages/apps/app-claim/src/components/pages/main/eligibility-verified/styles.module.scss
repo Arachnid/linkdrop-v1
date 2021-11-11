@@ -1,0 +1,32 @@
+@import "variables";
+
+.title {
+  font-size: 24px;
+  margin-bottom: 30px;
+  max-width: 266px;
+  span {
+    font-family: 'Inter-Medium';
+  }
+}
+
+.description {
+  font-size: 18px;
+  margin-bottom: 8px;
+
+  a {
+    color: $blackColor;
+  }
+}
+
+.button {
+  max-width: 300px;
+}
+
+.alert {
+  border-color: #4CD964!important;
+  margin-bottom: 40px;
+
+  path {
+    fill: #4CD964;
+  }
+}

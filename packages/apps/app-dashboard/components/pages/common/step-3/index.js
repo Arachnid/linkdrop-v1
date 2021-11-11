@@ -8,7 +8,6 @@ import { multiply, add, bignumber, subtract } from 'mathjs'
 import EthSummaryBlock from './eth-summary-block'
 import { defineDefaultSymbol } from 'helpers'
 import { linksLimit } from 'app.config.js'
-import { convertFromExponents } from '@linkdrop/commons'
 
 @actions(({
   user: {
@@ -61,7 +60,7 @@ class Step3 extends React.Component {
     }
   }
 
-  componentWillReceiveProps ({ linksAmount, tokenType, metamaskStatus, errors, ethBalanceFormatted, erc20BalanceFormatted }) {
+  componentWillReceiveProps ({ linksAmount, metamaskStatus, errors, ethBalanceFormatted, erc20BalanceFormatted }) {
     const {
       metamaskStatus: prevMetamaskStatus,
       errors: prevErrors,
@@ -92,8 +91,7 @@ class Step3 extends React.Component {
       }, _ => {
         this.intervalEthCheck && window.clearInterval(this.intervalEthCheck)
         // if links amount >= 1000 -> go to script page
-        const totalLinks = tokenType === 'erc1155' ? linksAmount.length : linksAmount
-        if (totalLinks >= linksLimit) {
+        if (linksAmount >= linksLimit) {
           return window.setTimeout(_ => this.actions().campaigns.save({ links: [] }), config.nextStepTimeout)
         }
         window.setTimeout(_ => this.actions().user.setStep({ step: 4 }), config.nextStepTimeout)
@@ -103,11 +101,9 @@ class Step3 extends React.Component {
 
   render () {
     const { loading: stateLoading } = this.state
-    const { linksAmount, ethAmount, tokenType, chainId, currentAddress, loading } = this.props
-    const totalLinks = tokenType === 'erc1155' ? linksAmount.length : linksAmount
-    const ethAmountFinal = convertFromExponents(multiply(add(bignumber(ethAmount), bignumber(config.linkPrice)), totalLinks))
-    const serviceFee = convertFromExponents(multiply(bignumber(config.linkPrice), bignumber(totalLinks)))
-    
+    const { linksAmount, ethAmount, chainId, currentAddress, loading } = this.props
+    const ethAmountFinal = multiply(add(bignumber(ethAmount), bignumber(config.linkPrice)), linksAmount)
+    const serviceFee = multiply(bignumber(config.linkPrice), bignumber(linksAmount))
     return <div className={styles.container}>
       {(loading || stateLoading) && <PageLoader transaction={stateLoading} />}
       <PageHeader title={this.t('titles.sendEth', { symbol: this.defaultSymbol, ethAmount: ethAmountFinal })} />
@@ -116,7 +112,7 @@ class Step3 extends React.Component {
           <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('texts._10', { defaultSymbol: this.defaultSymbol }) }} />
         </div>
         <div className={styles.scheme}>
-          <Instruction linksAmount={totalLinks} ethAmount={ethAmount} />
+          <Instruction linksAmount={linksAmount} ethAmount={ethAmount} />
         </div>
       </div>
       <EthSummaryBlock symbol={this.defaultSymbol} ethTotal={ethAmountFinal} ethToDistribute={subtract(bignumber(ethAmountFinal), bignumber(serviceFee))} serviceFee={serviceFee} text={this.t} />

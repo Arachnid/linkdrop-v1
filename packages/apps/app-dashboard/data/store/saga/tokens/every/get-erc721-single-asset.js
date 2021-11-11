@@ -1,6 +1,6 @@
 import { put, select } from 'redux-saga/effects'
 import { ethers } from 'ethers'
-import ERC721Mock from 'contracts/ERC721Mock.json'
+import NFTMock from 'contracts/NFTMock.json'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
 import { defineJsonRpcUrl } from '@linkdrop/commons'
 
@@ -12,7 +12,7 @@ const generator = function * ({ payload }) {
     yield put({ type: 'TOKENS.SET_TOKEN_TYPE', payload: { tokenType: 'erc721' } })
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-    const tokenContract = yield new ethers.Contract(tokenAddress, ERC721Mock.abi, provider)
+    const tokenContract = yield new ethers.Contract(tokenAddress, NFTMock.abi, provider)
     const symbol = yield tokenContract.symbol() 
     const asset = {
       address: tokenAddress,

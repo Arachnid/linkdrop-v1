@@ -1,4 +1,7 @@
-import { utils } from 'ethers'
+import { ethers, utils } from 'ethers'
+import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
+import { defineJsonRpcUrl } from '@linkdrop/commons'
+import TokenMock from 'contracts/TokenMock.json'
 
 const generator = function * ({ payload }) {
   try {

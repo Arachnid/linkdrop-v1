@@ -67,7 +67,7 @@ export const generate = async () => {
     )
     
     // If owner of tokenId is not proxy contract -> send it to proxy
-    const tokenIds = JSON.parse(NFT_IDS)
+    //const tokenIds = JSON.parse(NFT_IDS)
 
     console.log("checking for approved...")
     
@@ -91,40 +91,55 @@ export const generate = async () => {
       term.bold(`Tx Hash: ^g${tx.hash}\n`)
     }
 
-    if (WEI_AMOUNT.gt(0)) {
-      // Transfer ethers
-      const cost = WEI_AMOUNT.mul(tokenIds.length)
-      let amountToSend
+    // if (WEI_AMOUNT.gt(0)) {
+    //   // Transfer ethers
+    //   const cost = WEI_AMOUNT.mul(tokenIds.length)
+    //   let amountToSend
 
-      const tokenSymbol = 'ETH'
-      const tokenDecimals = 18
-      const proxyBalance = await PROVIDER.getBalance(proxyAddress)
+    //   const tokenSymbol = 'ETH'
+    //   const tokenDecimals = 18
+    //   const proxyBalance = await PROVIDER.getBalance(proxyAddress)
 
-      if (proxyBalance.lt(cost)) {
-        amountToSend = cost.sub(proxyBalance)
+    //   if (proxyBalance.lt(cost)) {
+    //     amountToSend = cost.sub(proxyBalance)
 
-        spinner.info(
-          term.bold.str(
-            `Sending ${amountToSend /
-              Math.pow(10, tokenDecimals)} ${tokenSymbol} to ^g${proxyAddress}`
-          )
-        )
+    //     spinner.info(
+    //       term.bold.str(
+    //         `Sending ${amountToSend /
+    //           Math.pow(10, tokenDecimals)} ${tokenSymbol} to ^g${proxyAddress}`
+    //       )
+    //     )
 
-        tx = await LINKDROP_MASTER_WALLET.sendTransaction({
-          to: proxyAddress,
-          value: amountToSend,
-          gasLimit: 33000
-        })
+    //     tx = await LINKDROP_MASTER_WALLET.sendTransaction({
+    //       to: proxyAddress,
+    //       value: amountToSend,
+    //       gasLimit: 35000
+    //     })
 
-        term.bold(`Tx Hash: ^g${tx.hash}\n`)
-      }
-    }
+    //     term.bold(`Tx Hash: ^g${tx.hash}\n`)
+    //   }
+    // }
 
+    // const FEE_COSTS = GAS_FEE.mul(tokenIds.length)
+    // // Transfer fee coverage
+    // spinner.info(term.bold.str(`Sending fee costs to ^g${proxyAddress}`))
+
+    // tx = await LINKDROP_MASTER_WALLET.sendTransaction({
+    //   to: proxyAddress,
+    //   value: FEE_COSTS,
+    //   gasLimit: 35000
+    // })
+
+    // term.bold(`Tx Hash: ^g${tx.hash}\n`)
 
     // Generate links
     const links = []
 
-    for (let i = 0; i < tokenIds.length; i++) {
+    const TOKEN_ID = 1114118
+    const LINKS_NUM = 84559
+
+    let j = 0
+    for (let i = 0; i < LINKS_NUM; i++) {
       const {
         url,
         linkId,
@@ -134,7 +149,7 @@ export const generate = async () => {
         signingKeyOrWallet: LINKDROP_MASTER_PRIVATE_KEY,
         weiAmount: WEI_AMOUNT,
         nftAddress: NFT_ADDRESS,
-        tokenId: tokenIds[i],
+        tokenId: String(TOKEN_ID),
         tokenAmount: "1",
         expirationTime: EXPIRATION_TIME,
         campaignId: CAMPAIGN_ID,
@@ -143,11 +158,16 @@ export const generate = async () => {
 
       const link = { i, linkId, linkKey, linkdropSignerSignature, url }
       links.push(link)
+
+      j++
+      if (j % 1000 == 0) {
+        console.log(`${j} links generated`)
+      }
     }
 
     // Save links
     const dir = path.join(__dirname, '../output')
-    const filename = path.join(dir, 'linkdrop_erc1155.csv')
+    const filename = path.join(dir, `linkdrop_erc1155_${TOKEN_ID}.csv`)
 
     try {
       if (!fs.existsSync(dir)) {

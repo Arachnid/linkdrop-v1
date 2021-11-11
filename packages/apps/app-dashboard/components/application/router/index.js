@@ -10,8 +10,7 @@ import {
   CampaignCreateERC721Manual,
   CampaignCreate,
   CampaignInfo,
-  Campaigns,
-  CampaignCreateERC1155Manual
+  Campaigns
 } from 'components/pages'
 import './styles'
 
@@ -29,9 +28,10 @@ class AppRouter extends React.Component {
   render () {
     return <Page>
       <Switch>
+        <Route path='/campaigns/create-erc721' exact component={CampaignCreateERC721} />
+        <Route path='/campaigns/create-erc20' exact component={CampaignCreate} />
         <Route path='/campaigns/create-erc20-manual' exact component={CampaignCreateManual} />
         <Route path='/campaigns/create-erc721-manual' exact component={CampaignCreateERC721Manual} />
-        <Route path='/campaigns/create-erc1155-manual' exact component={CampaignCreateERC1155Manual} />
         <Route path='/campaigns/:id' exact component={CampaignInfo} />
         <Route path='/campaigns' exact component={Campaigns} />
         <Route path='/' exact component={Main} />

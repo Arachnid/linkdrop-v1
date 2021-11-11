@@ -14,25 +14,17 @@ const {
 const GWEI_TO_ADD = ethers.utils.parseUnits(GWEI_ADDED_ON_RETRY || '1', 'gwei')
 
 class OperationService {
-  async findById(id) {
+  async findById (id) {
     const operation = await Operation.findOne({ id })
     return operation
   }
 
-  async findByTxHash(txHash) {
+  async findByTxHash (txHash) {
     const operation = await Operation.findOne({ 'transactions.hash': txHash })
     return operation
   }
 
-  async findReceiverPreviousClaim({ linkdropMasterAddress, receiverAddress }) {
-      const claim = await Operation.findOne({
-	  'data.linkdropMasterAddress': linkdropMasterAddress,
-	  'data.receiverAddress': receiverAddress
-      })
-    return claim
-  }
-    
-  async create({ id, type, data, status = 'created' }) {
+  async create ({ id, type, data, status = 'created' }) {
     const operation = new Operation({
       id,
       type,
@@ -47,14 +39,12 @@ class OperationService {
     await operation.save()
 
     logger.info(
-      `Operation ${operation.type} was successfully saved to database: ${
-      operation.id
-      }`
+      `Operation ${operation.type} was successfully saved to database: ${operation.id}`
     )
     return operation
   }
 
-  async update({ id, type, data, status }) {
+  async update ({ id, type, data, status }) {
     const operation = await this.findById(id)
     if (type) {
       operation.type = type
@@ -71,14 +61,12 @@ class OperationService {
     await operation.save()
 
     logger.info(
-      `Operation ${operation.type} was successfully updated in database: ${
-      operation.id
-      }`
+      `Operation ${operation.type} was successfully updated in database: ${operation.id}`
     )
     return operation
   }
 
-  async updateOnTransactionMined(id, txHash, receipt) {
+  async updateOnTransactionMined (id, txHash, receipt) {
     logger.debug(`Updating operation (${id}) on tx mined (${txHash})`)
     const operation = await this.findById(id)
     const status = receipt.status === 1 ? 'completed' : 'error'
@@ -97,7 +85,7 @@ class OperationService {
     logger.json(operation)
   }
 
-    async retryTransaction(id, txHash, gasPrice, flushNonce=false) {
+  async retryTransaction (id, txHash, gasPrice) {
     logger.info(`Retrying operation (${id}) with new tx...`)
     const operation = await this.findById(id)
     const transaction = operation.transactions
@@ -107,17 +95,13 @@ class OperationService {
     const { nonce, gasLimit, value, data, to } = transaction.params
 
     const params = {
+      nonce,
       gasPrice,
-	gasLimit,
+      gasLimit,
       value: ethers.utils.parseUnits(value),
       data,
       to
     }
-	
-    if (!flushNonce) {
-      params.nonce = nonce
-    }
-	
     logger.json(params)
     const newTx = await relayerWalletService.relayerWallet.sendTransaction(
       params
@@ -129,7 +113,7 @@ class OperationService {
     this.addTransaction(id, newTx)
   }
 
-  async trackTransaction(id, txHash) {
+  async trackTransaction (id, txHash) {
     logger.debug(`Listening for mined tx ${txHash}...`)
     // time for loop
     const LOOP_TIME = TRANSACTION_LOOP_TIME || 10000 // 10 secs
@@ -170,7 +154,6 @@ class OperationService {
         const transaction = operation.transactions
           .filter(tx => tx.hash === txHash)[0]
           .toObject()
-
 
         let { gasPrice, gasLimit } = transaction.params
 
@@ -220,10 +203,7 @@ class OperationService {
     this.trackTransaction(id, tx.hash)
 
     logger.info(
-      `Tx ${transaction.hash} was successfully saved to operation ${
-      operation.id
-      }`
-
+      `Tx ${transaction.hash} was successfully saved to operation ${operation.id}`
     )
     return operation
   }

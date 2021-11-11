@@ -21,7 +21,6 @@ class Page extends React.Component {
 
   defineContent ({ currentAddress }) {
     const { chainId, loading, web3Provider } = this.props
-    console.log({ currentAddress, chainId, loading })
     if (!web3Provider) {
       return <Web3Injector />
     }

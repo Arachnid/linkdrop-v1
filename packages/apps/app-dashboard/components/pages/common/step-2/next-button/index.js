@@ -10,9 +10,6 @@ class NextButton extends React.Component {
   render () {
     const { tokenType, chainId, tokenAmount, currentAddress, linksAmount, ethAmount, serviceFee } = this.props
     const ethAmountFinal = multiply(add(bignumber(ethAmount), bignumber(serviceFee)), linksAmount)
-    console.log({
-      ethAmountFinal
-    })
     return <Button
       className={styles.button} onClick={_ => {
         if (tokenType === 'eth') {
@@ -27,14 +24,8 @@ class NextButton extends React.Component {
             account: currentAddress,
             chainId
           })
-        } else if (tokenType === 'erc721') {
-          this.actions().metamask.sendErc721({
-            tokenAmount: linksAmount,
-            account: currentAddress,
-            chainId
-          })
         } else {
-          this.actions().metamask.sendErc1155({
+          this.actions().metamask.sendErc721({
             tokenAmount: linksAmount,
             account: currentAddress,
             chainId

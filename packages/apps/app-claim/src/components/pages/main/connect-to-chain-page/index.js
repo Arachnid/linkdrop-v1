@@ -1,9 +1,10 @@
 import React from 'react'
 import { translate, actions } from 'decorators'
-import { Button } from '@linkdrop/ui-kit'
+import { Button, RetinaImage } from '@linkdrop/ui-kit'
 import chains from 'chains'
 import cn from 'classnames'
 import { shortenString } from '@linkdrop/commons'
+import { getImages } from 'helpers'
 
 import styles from './styles.module'
 import commonStyles from '../styles.module'
@@ -13,7 +14,14 @@ class ConnectToChainPage extends React.Component {
   render () {
     const { chainToConnectTo, currentChainId, context, wallet } = this.props
     const { chainName } = chains[chainToConnectTo]
+
     return <div className={cn(commonStyles.container, styles.container)}>
+      <RetinaImage
+        width={100}
+        className={styles.image}
+        {...getImages({ src: 'polygon' })}
+      />
+
       <h2 className={styles.title}>{this.t('titles.addCustomNetwork', {
         chainName
       })}</h2>

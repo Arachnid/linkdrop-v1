@@ -9,3 +9,10 @@
 .mainNoHeader {
   min-height: calc(100vh - 60px);
 }
+
+.backArrow {
+  position: absolute;
+  left: 25px;
+  top: 20px;
+  cursor: pointer;
+}

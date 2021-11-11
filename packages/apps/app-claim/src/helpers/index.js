@@ -6,6 +6,8 @@ import getInitialBlock from './get-initial-block'
 import getDappData from './get-dapp-data'
 import defineConnectors from './define-connectors'
 import toHex from './to-hex'
+import defineDeviceData from './define-device-data'
+import getCount from './get-count'
 
 export {
   getImages,
@@ -14,6 +16,8 @@ export {
   getWalletData,
   getInitialBlock,
   getDappData,
+  defineConnectors,
   toHex,
-  defineConnectors
+  defineDeviceData,
+  getCount
 }

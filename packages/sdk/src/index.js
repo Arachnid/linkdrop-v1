@@ -41,7 +41,7 @@ class LinkdropSDK {
       chain !== 'bsc-testnet' &&
         chain !== 'bsc' &&
         chain !== 'matic' &&
-        chain !== 'mumbai'    
+        chain !== 'mumbai'
     ) {
       throw new Error('Unsupported chain')
     }
@@ -358,7 +358,7 @@ function getChainId (chain) {
     case 'matic':
     return '137'
     case 'mumbai':
-      return '80001'    
+      return '80001'        
   default:
       return null
   }

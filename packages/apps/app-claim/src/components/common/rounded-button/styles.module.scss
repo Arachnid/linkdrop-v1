@@ -1,17 +1,9 @@
-@import "variables";
+@import 'variables';
 
 .container {
   border-radius: 8px!important;
-  max-width: 343px!important;
-  width: 100%!important;
+  max-width: 328px!important;
   height: 36px!important;
   font-size: 16px!important;
-  font-family: 'Inter-Bold';
   background: $blueColor!important;
-}
-
-.inverted {
-  border: 2px solid $blueColor!important;
-  color: $blueColor!important;
-  background: transparent!important;
 }

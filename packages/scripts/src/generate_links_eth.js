@@ -26,7 +26,7 @@ const PROVIDER = getProvider()
 const LINKDROP_MASTER_WALLET = getLinkdropMasterWallet()
 const CAMPAIGN_ID = getInt('CAMPAIGN_ID')
 const FACTORY_ADDRESS = getString('FACTORY_ADDRESS')
-const GAS_FEE = ethers.utils.parseUnits('0')
+const GAS_FEE = ethers.utils.parseUnits('0.002')
 const DEFAULT_WALLET = getString('DEFAULT_WALLET')
 
 WEI_AMOUNT = ethers.utils.bigNumberify(WEI_AMOUNT.toString())
@@ -74,7 +74,7 @@ export const generate = async () => {
       tx = await LINKDROP_MASTER_WALLET.sendTransaction({
         to: proxyAddress,
         value: amountToSend,
-        gasLimit: 33000
+        gasLimit: 23000
       })
 
       term.bold(`Tx Hash: ^g${tx.hash}\n`)
@@ -87,7 +87,7 @@ export const generate = async () => {
     tx = await LINKDROP_MASTER_WALLET.sendTransaction({
       to: proxyAddress,
       value: FEE_COSTS,
-      gasLimit: 33000,
+      gasLimit: 23000,
       gasPrice: ethers.utils.parseUnits('20', 'gwei')
     })
 

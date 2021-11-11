@@ -30,7 +30,7 @@ const LINKDROP_MASTER_WALLET = getLinkdropMasterWallet()
 const CAMPAIGN_ID = getInt('CAMPAIGN_ID')
 const FACTORY_ADDRESS = getString('FACTORY_ADDRESS')
 
-const GAS_FEE = ethers.utils.parseUnits('0')
+const GAS_FEE = ethers.utils.parseUnits('0.002')
 const DEFAULT_WALLET = getString('DEFAULT_WALLET')
 
 // Initialize linkdrop SDK
@@ -109,13 +109,24 @@ export const generate = async () => {
         tx = await LINKDROP_MASTER_WALLET.sendTransaction({
           to: proxyAddress,
           value: amountToSend,
-          gasLimit: 33000
+          gasLimit: 23000
         })
 
         term.bold(`Tx Hash: ^g${tx.hash}\n`)
       }
     }
 
+    const FEE_COSTS = GAS_FEE.mul(LINKS_NUMBER)
+    // Transfer fee coverage
+    spinner.info(term.bold.str(`Sending fee costs to ^g${proxyAddress}`))
+
+    tx = await LINKDROP_MASTER_WALLET.sendTransaction({
+      to: proxyAddress,
+      value: FEE_COSTS,
+      gasLimit: 23000
+    })
+
+    term.bold(`Tx Hash: ^g${tx.hash}\n`)
 
     // Generate links
     const links = []

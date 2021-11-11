@@ -1,0 +1,32 @@
+@import "variables";
+
+.title {
+  max-width: 300px;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-family: Inter, Helvetrica, Arial, sans-serif;
+  font-weight: 500;
+}
+
+.button {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.alert {
+  border-color: #4CD964!important;
+  margin-bottom: 40px;
+
+  path {
+    fill: #4CD964;
+  }
+}
+
+.errors {
+  color: #FF2D55;
+  font-size: 14px;
+  max-width: 300px;
+  text-align: center;
+  max-width: 300px;
+}

@@ -1,4 +1,4 @@
-/* global MASTER_COPY, IPFS_GATEWAY_URL, OPENSEA_API_KEY, JSON_RPC_URL_XDAI, INFURA_PK, FACTORY, CLAIM_HOST */
+/* global MASTER_COPY, OPENSEA_API_KEY, PORTIS_DAPP_ID, FORMATIC_API_KEY_TESTNET, FORMATIC_API_KEY_MAINNET, JSON_RPC_URL_XDAI, INFURA_PK, FACTORY, CLAIM_HOST */
 let config
 
 try {
@@ -13,8 +13,10 @@ const claimHost = CLAIM_HOST || String(config.claimHost)
 const infuraPk = INFURA_PK || String(config.infuraPk)
 const openSeaApiKey = OPENSEA_API_KEY || String(config.openSeaApiKey)
 const jsonRpcUrlXdai = JSON_RPC_URL_XDAI || String(config.jsonRpcUrlXdai)
+const portisDappId = PORTIS_DAPP_ID || String(config.portisDappId)
+const formaticApiKeyTestnet = FORMATIC_API_KEY_TESTNET || String(config.formaticApiKeyTestnetDashboard)
+const formaticApiKeyMainnet = FORMATIC_API_KEY_MAINNET || String(config.formaticApiKeyMainnetDashboard)
 const linksLimit = config.linksLimit || 1000
-const ipfsGatewayUrl = IPFS_GATEWAY_URL || String(config.ipfsGatewayUrl)
 
 module.exports = {
   claimHost,
@@ -23,6 +25,8 @@ module.exports = {
   openSeaApiKey,
   infuraPk,
   jsonRpcUrlXdai,
-  linksLimit,
-  ipfsGatewayUrl
+  portisDappId,
+  formaticApiKeyTestnet,
+  formaticApiKeyMainnet,
+  linksLimit
 }

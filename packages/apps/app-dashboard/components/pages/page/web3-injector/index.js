@@ -6,6 +6,8 @@ import styles from './styles.module'
 import Web3Connect from 'web3connect'
 import Web3 from 'web3'
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import Portis from "@portis/web3";
+import Fortmatic from "fortmatic";
 import { getHashVariables, defineNetworkName } from '@linkdrop/commons'
 import { infuraPk, portisDappId, formaticApiKeyTestnet, formaticApiKeyMainnet } from 'app.config.js'
 
@@ -26,7 +28,21 @@ class Web3Injector extends React.Component {
             infuraId: infuraPk,
             network: networkName
           }
-        }
+        },
+        portis: {
+          package: Portis,
+          options: {
+            id: portisDappId,
+            network: networkName
+          }
+        },
+        fortmatic: {
+          package: Fortmatic,
+          options: {
+            key: Number(chainId) === 1 ? formaticApiKeyMainnet : formaticApiKeyTestnet,
+            network: networkName
+          }
+        },
       }
     })
 

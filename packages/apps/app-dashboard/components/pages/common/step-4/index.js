@@ -31,15 +31,13 @@ import { ProgressBar } from 'components/common'
 @translate('pages.campaignCreate')
 class Step4 extends React.Component {
   componentDidMount () {
-    const { chainId, currentAddress, tokenType, tokenIds, linksAmount } = this.props
+    const { chainId, currentAddress, tokenType, tokenIds } = this.props
     if (tokenType === 'eth') {
       this.actions().tokens.generateETHLink({ chainId, currentAddress })
     } else if (tokenType === 'erc20') {
       this.actions().tokens.generateERC20Link({ chainId, currentAddress })
-    } else if (tokenType === 'erc721') {
-      this.actions().tokens.generateERC721Link({ chainId, currentAddress, tokenId: tokenIds[0] })
     } else {
-      this.actions().tokens.generateERC1155Link({ chainId, currentAddress, tokenId: linksAmount[0] })
+      this.actions().tokens.generateERC721Link({ chainId, currentAddress, tokenId: tokenIds[0] })
     }
   }
 
@@ -74,30 +72,15 @@ class Step4 extends React.Component {
         this.actions().tokens.generateERC721Link({ chainId, currentAddress, tokenId: tokenIds[links.length] })
       }
     }
-
-
-    if (tokenType === 'erc1155') {
-      if (links.length === linksAmount.length) {
-        return this.actions().campaigns.save({ links })
-      }
-      if (links && links.length > 0 && links.length > prevLinks.length && links.length < linksAmount.length) {
-        this.actions().tokens.generateERC1155Link({
-          chainId,
-          currentAddress,
-          tokenId: linksAmount[links.length]
-        })
-      }
-    }
   }
 
   render () {
-    const { linksAmount, links, tokenType } = this.props
-    const totalLinks = tokenType === 'erc1155' ? linksAmount.length : linksAmount
+    const { linksAmount, links } = this.props
     return <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.title}>{this.t('titles.generatingLinks')}</div>
         <div className={styles.subtitle} dangerouslySetInnerHTML={{ __html: this.t('titles.loadingProcess') }} />
-        <ProgressBar current={links.length} max={totalLinks} />
+        <ProgressBar current={links.length} max={linksAmount} />
       </div>
     </div>
   }

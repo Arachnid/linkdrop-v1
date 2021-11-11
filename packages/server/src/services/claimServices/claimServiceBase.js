@@ -35,11 +35,6 @@ class ClaimService {
     return operationService.findById(id)
   }
 
-  // Check whether a claim tx exists in database
-    findReceiverPreviousClaim ({ linkdropMasterAddress, receiverAddress }) {
-      return operationService.findReceiverPreviousClaim({ linkdropMasterAddress, receiverAddress })
-  }
-    
   findClaimById (id) {
     return operationService.findById(id)
   }
@@ -94,14 +89,6 @@ class ClaimService {
     )
   }
 
-    receiverCanClaimCampaignOnlyOnce(params) {
-      logger.json(params)
-      return (params.linkdropMasterAddress.toLowerCase() === '0x884e3718d113fb1e6578f5aaf01ea8c1e807d854' ||
-	      params.linkdropMasterAddress.toLowerCase() === '0xa5c3a513645a9a00cb561fed40438e9dfe0d6a69' 
-	     )
-  }
-
-    
   async claim (params) {
     // Make sure all arguments are passed
     this._checkClaimParams(params)
@@ -124,21 +111,6 @@ class ClaimService {
     }
     logger.debug("Claim doesn't exist in database yet. Creating new claim...")
 
-    // check receiver address is unique
-      if (this.receiverCanClaimCampaignOnlyOnce(params)) {
-	logger.debug("Can claim campaign only once")
-         const previousClaim = await this.findReceiverPreviousClaim(params)
-	 logger.json(previousClaim)
-	if (previousClaim && previousClaim.transactions.length > 0) {
-	    logger.info(`Receiver has already claimed: ${previousClaim.id}`)
-	    
-	    // retrieving the latest transactoin and returning it's tx hash
-	    const prevTx = previousClaim.transactions[previousClaim.transactions.length - 1]
-	    return prevTx.hash
-	}
-    }
-    logger.debug("New receiver check passed")	
-	
     // compute proxyAddress from master address
     const proxyAddress = await linkdropService.getProxyAddress(
       params.linkdropMasterAddress,
@@ -155,16 +127,15 @@ class ClaimService {
     await this._checkParamsWithBlockchainCall(params)
     logger.debug('Blockchain params check passed. Submitting claim tx...')
 
-    // send claim transaction to blockchain
-    const tx = await this._sendClaimTx(params)
-    logger.info('Submitted claim tx: ' + tx.hash)
-
-      
     // save claim operation to database
     const claimId = this._computeId(params)
     logger.debug('Saving claim operation to database...')
     await operationService.create({ id: claimId, type: 'claim', data: params })
-      
+
+    // send claim transaction to blockchain
+    const tx = await this._sendClaimTx(params)
+    logger.info('Submitted claim tx: ' + tx.hash)
+
     // add transaction details to database
     await operationService.addTransaction(claimId, tx)
 

@@ -7,8 +7,6 @@ module.exports = shipit => {
 
   if (network === 'mainnet') CUSTOM_PORT = 10001
   else if (network === 'rinkeby') CUSTOM_PORT = 10004
-  else if (network === 'rinkeby1155') CUSTOM_PORT = 11554
-  else if (network === 'mainnet1155') CUSTOM_PORT = 11551
   else if (network === 'ropsten') CUSTOM_PORT = 10003
   else if (network === 'xdai') CUSTOM_PORT = 10100
   else if (network === 'kovan') CUSTOM_PORT = 10042
@@ -24,8 +22,6 @@ module.exports = shipit => {
       servers: 'root@mainnet.linkdrop.io'
     },
     rinkeby: { branch: 'dev' },
-    rinkeby1155: { branch: 'erc1155' },
-    mainnet1155: { branch: 'erc1155' }, 
     ropsten: { branch: 'dev' },
     mainnet: { branch: 'dev' },
     xdai: { branch: 'dev' },

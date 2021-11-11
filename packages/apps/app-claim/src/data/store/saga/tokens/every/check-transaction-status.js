@@ -9,7 +9,6 @@ const generator = function * ({ payload }) {
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk })
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
     const receipt = yield provider.getTransactionReceipt(transactionId)
-
     if (receipt && Number(receipt.status) === 0) {
       return yield put({ type: 'TOKENS.SET_TRANSACTION_STATUS', payload: { transactionStatus: 'failed' } })
     }

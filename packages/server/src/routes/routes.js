@@ -11,12 +11,6 @@ const routes = {
       method: 'claimERC721'
     }
   },
-  '/linkdrops/claim-erc1155': {
-    post: {
-      controller: 'claimController',
-      method: 'claimERC1155'
-    }
-  },  
   '/linkdrops/getStatus/:linkdropMasterAddress/:linkId': {
     get: {
       controller: 'claimController',

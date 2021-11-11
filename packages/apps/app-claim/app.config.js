@@ -1,4 +1,4 @@
-/* global MASTER_COPY, IPFS_GATEWAY_URL, INFURA_PK, FACTORY, INITIAL_BLOCK_GOERLI, INITIAL_BLOCK_KOVAN, INITIAL_BLOCK_ROPSTEN, INITIAL_BLOCK_MAINNET, INITIAL_BLOCK_RINKEBY */
+/* global MASTER_COPY, INFURA_PK, FACTORY, INITIAL_BLOCK_GOERLI, INITIAL_BLOCK_KOVAN, INITIAL_BLOCK_ROPSTEN, INITIAL_BLOCK_MAINNET, INITIAL_BLOCK_RINKEBY */
 
 let config
 
@@ -16,7 +16,12 @@ const initialBlockGoerli = INITIAL_BLOCK_GOERLI || config.initialBlockGoerli || 
 const initialBlockRopsten = INITIAL_BLOCK_ROPSTEN || config.initialBlockRopsten || 0
 const initialBlockKovan = INITIAL_BLOCK_KOVAN || config.initialBlockKovan || 0
 const infuraPk = INFURA_PK || String(config.infuraPk)
+const contractAddress = CONTRACT_ADDRESS || String(config.contractAddress)
+const mainTokenTitle = MAIN_TOKEN_TITLE || String(config.mainTokenTitle)
+const defaultChainId = DEFAULT_CHAIN_ID || Number(config.defaultChainId)
+const apiUrl = API_URL || String(config.apiUrl)
 const ipfsGatewayUrl = IPFS_GATEWAY_URL || String(config.ipfsGatewayUrl)
+const tweetAddressSalt = TWEET_ADDRESS_SALT || String(config.tweetAddressSalt)
 
 module.exports = {
   masterCopy,
@@ -27,5 +32,10 @@ module.exports = {
   initialBlockGoerli,
   initialBlockRopsten,
   initialBlockKovan,
-  ipfsGatewayUrl
+  contractAddress,
+  mainTokenTitle,
+  defaultChainId,
+  apiUrl,
+  ipfsGatewayUrl,
+  tweetAddressSalt
 }

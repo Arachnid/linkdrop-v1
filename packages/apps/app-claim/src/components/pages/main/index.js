@@ -9,9 +9,20 @@ import ClaimingFinishedPage from './claiming-finished-page'
 import NeedWallet from './need-wallet'
 import WelcomeScreenPage from './welcome-screen-page'
 import ConnectToChainPage from './connect-to-chain-page'
+import Tweet from './tweet'
+import CheckTweet from './check-tweet'
+import TokenCheckPage from './token-check-page'
+import TokenFound from './token-found'
+import VerifyEligibility from './verify-eligibility'
+import EligibilityVerified from './eligibility-verified'
+import CampaignOverPage from './campaign-over-page'
 import chains from 'chains'
+import { defaultChainId } from 'app.config.js'
 
+import { terminalApiKey, terminalProjectId } from 'app.config.js'
 import { getHashVariables, defineNetworkName, capitalize } from '@linkdrop/commons'
+import Web3 from 'web3'
+import { TerminalHttpProvider, SourceType } from '@terminal-packages/sdk'
 
 @actions(({ user: { errors, step, loading: userLoading, readyToClaim, alreadyClaimed }, tokens: { transactionId }, contract: { loading, decimals, amount, symbol, icon } }) => ({
   userLoading,
@@ -28,38 +39,41 @@ import { getHashVariables, defineNetworkName, capitalize } from '@linkdrop/commo
 }))
 @platform()
 @detectBrowser()
-@translate('pages.claim')
+@translate('pages.main')
 class Claim extends React.Component {
-constructor (props) {
+  constructor (props) {
     super(props)
-    const { context } = props
-    const { library } = context
+    const { web3Provider, context } = props
+    const currentProvider = web3Provider && this.createTerminalProvider({ web3Provider })
+    
     this.state = {
+      // accounts: null,
       connectorChainId: context.chainId,
-      welcomeScreen: true,
-      provider: library
+      currentProvider,
+      welcomeScreen: true
     }
   }
 
-  async componentDidMount () {
-    const {
-      linkKey,
-      chainId,
-      linkdropMasterAddress,
-      campaignId
-    } = getHashVariables()
-    const { provider } = this.state
-    this.actions().tokens.checkIfClaimed({ linkKey, chainId, linkdropMasterAddress, campaignId })
-    this.actions().user.createSdk({ provider, linkdropMasterAddress, chainId, linkKey, campaignId })
+  createTerminalProvider ({ web3Provider }) {
+    return web3Provider
+    // return new Web3(web3Provider)
+    // const web3 = new Web3(
+    //   new TerminalHttpProvider({
+    //     apiKey: terminalApiKey,
+    //     projectId: terminalProjectId,
+    //     source: SourceType.Terminal,
+    //     customHttpProvider: web3Provider
+    //   })
+    // );
+  }
+
+  componentDidMount () {
+    this.actions().user.getCampaignData()
   }
 
   componentWillReceiveProps ({ readyToClaim, alreadyClaimed, context, step }) {
     const { readyToClaim: prevReadyToClaim, context: prevContext } = this.props
     const { connectorChainId } = this.state
-
-    if (context.library && !prevContext.library) {
-      this.actions().user.setProvider({ provider: context.library })
-    }
 
     if (context &&
       context.error &&
@@ -69,7 +83,6 @@ constructor (props) {
     ) {
       return this.actions().user.setErrors({ errors: ['CONNECTOR_NETWORK_NOT_SUPPORTED'] })
     }
-
     if (context.chainId && connectorChainId !== context.chainId) {
       this.setState({
         connectorChainId: context.chainId
@@ -81,7 +94,6 @@ constructor (props) {
     ) {
       return this.actions().user.setStep({ step: 1 })
     }
-
     if (
       (readyToClaim === true && prevReadyToClaim === true) ||
       readyToClaim == null ||
@@ -95,35 +107,15 @@ constructor (props) {
       }
       return
     }
-    const {
-      tokenAddress,
-      weiAmount,
-      tokenAmount,
-      expirationTime,
-      chainId,
-      nftAddress,
-      tokenId,
-      name,
-      linkdropMasterAddress
-    } = getHashVariables()
-    if (Number(expirationTime) < (+(new Date()) / 1000)) {
-      // show error page if link expired
-      return this.actions().user.setErrors({ errors: ['LINK_EXPIRED'] })
-    }
+    // if (Number(expirationTime) < (+(new Date()) / 1000)) {
+    //   // show error page if link expired
+    //   return this.actions().user.setErrors({ errors: ['LINK_EXPIRED'] })
+    // }
 
-    if (nftAddress && tokenId) {
-      if (tokenAmount) {
-        return this.actions().contract.getTokenERC1155Data({
-          nftAddress,
-          tokenId,
-          chainId,
-          name,
-          masterAddress: linkdropMasterAddress
-        })
-      }
-      return this.actions().contract.getTokenERC721Data({ nftAddress, tokenId, chainId, name })
-    }
-    this.actions().contract.getTokenERC20Data({ tokenAddress, weiAmount, tokenAmount, chainId })
+    // if (nftAddress && tokenId) {
+    //   return this.actions().contract.getTokenERC721Data({ nftAddress, tokenId, chainId, name })
+    // }
+    // this.actions().contract.getTokenERC20Data({ tokenAddress, weiAmount, tokenAmount, chainId })
   }
 
   render () {
@@ -131,42 +123,35 @@ constructor (props) {
     return this.renderCurrentPage({ context })
   }
 
-  async getProviderData ({ currentProvider }) {
-    const accounts = await currentProvider.eth.getAccounts()
-    const connectorChainId = await currentProvider.eth.getChainId()
-    return { accounts, connectorChainId }
-  }
+  // async getProviderData ({ currentProvider }) {
+  //   const accounts = await currentProvider.eth.getAccounts()
+  //   const connectorChainId = await currentProvider.eth.getChainId()
+  //   return { accounts, connectorChainId }
+  // }
 
   renderCurrentPage ({ context }) {
-    const {
-      variant,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      linkKey,
-      linkdropMasterAddress,
-      linkdropSignerSignature,
-      nftAddress,
-      tokenId,
-      weiAmount,
-      chainId,
-      campaignId,
-      manual
-    } = getHashVariables()
-    const { decimals, amount, symbol, icon, step, userLoading, errors, alreadyClaimed, readyToClaim } = this.props
+    const { decimals, amount, symbol, icon, step, userLoading, errors, alreadyClaimed, web3Provider, readyToClaim } = this.props
+
     const { connectorChainId, welcomeScreen } = this.state
     const {
       account
     } = context
 
-    if (!readyToClaim) { return <Loading /> }
-    const commonData = { linkdropMasterAddress, chainId, decimals, amount, symbol, icon, wallet: account, loading: userLoading }
+    // !!!!!!!!! if (!readyToClaim) { return <Loading /> }
+    // when token data is not ready
+
+
+
+    const chainId = defaultChainId
+
+
+    const commonData = { chainId, decimals, amount, symbol, icon, wallet: account, context, loading: userLoading }
     // if (this.platform === 'desktop' && chainId && !account) {
     //   return <ErrorPage error='NETWORK_NOT_SUPPORTED' network={capitalize({ string: defineNetworkName({ chainId }) })} />
     // }
 
     if (alreadyClaimed) {
-      // if tokens we already claimed (if wallet is totally empty).
+      // if tokens were already claimed
       return <ClaimingFinishedPage
         {...commonData}
       />
@@ -180,10 +165,7 @@ constructor (props) {
       />
     }
 
-    if (this.platform === 'desktop' && !account) {
-      return <NeedWallet context={context} />
-    }
-    
+
     if (
       ((this.platform === 'desktop' && connectorChainId && Number(chainId) !== Number(connectorChainId)) ||
       (this.platform !== 'desktop' && account && connectorChainId && Number(chainId) !== Number(connectorChainId))) &&
@@ -198,51 +180,32 @@ constructor (props) {
       />
     }
 
-
-    if (variant && welcomeScreen) {
-      return <WelcomeScreenPage
-        icon={icon}
-        onClick={_ => {
-          this.setState({
-            welcomeScreen: false
-          })
-        }}
-      />
-    }
-
-
-
+    
+    const hasNoNeededChain = Number(chainId) !== Number(connectorChainId) && Object.keys(chains).includes(String(chainId))
+    console.log({ hasNoNeededChain })
     switch (step) {
       case 1:
         return <InitialPage
-          {...commonData}
-          onClick={_ => {
-            if (account) {
-              // if wallet account was found in web3 context, then go to step 4 and claim data
-                if (nftAddress && tokenId) {
-                  if (tokenAmount) {
-                    if (manual) {
-                      return this.actions().tokens.claimTokensERC1155Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
-                    }
-                    return this.actions().tokens.claimTokensERC1155({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
-                  }
-                  if (manual) {
-                    return this.actions().tokens.claimTokensERC721Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
-                  }
-                  return this.actions().tokens.claimTokensERC721({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
+            {...commonData}
+            onClick={_ => {
+              if (account) {
+                // if wallet account was found in web3 context, then go to step 4 and claim data
+                if (hasNoNeededChain) {
+                  // go to chain connect
+                  return this.actions().user.setStep({ step: 4 })
+                } else {
+                  // go to check token screen
+                  return this.actions().user.setStep({ step: 5 })
                 }
-
-                if (manual) {
-                  return this.actions().tokens.claimTokensERC20Manual({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })
-                }
-
-                return this.actions().tokens.claimTokensERC20({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })  
-
-            }
-            // if wallet was not found in web3 context, then go to step 2 with wallet select page and instructions
-            this.actions().user.setStep({ step: 2 })
-          }}
-        />
+              }
+              if (this.platform === 'desktop') {
+                // if you use desktop browser and has no account, so you need web3
+                return this.actions().user.setStep({ step: 13 })
+              }
+              // if wallet was not found in web3 context, then go to step 2 with wallet select page and instructions
+              this.actions().user.setStep({ step: 2 })
+            }}
+          />
       case 2:
         // page with wallet select component
         return <WalletChoosePage
@@ -256,26 +219,89 @@ constructor (props) {
         return <InitialPage
           {...commonData}
           onClick={_ => {
-            return this.actions().user.setStep({ step: 4 })
+            if (hasNoNeededChain) {
+              // go to chain connect
+              return this.actions().user.setStep({ step: 4 })
+            } else {
+              // go to check token screen
+              return this.actions().user.setStep({ step: 5 })
+            }
           }}
         />
       case 4:
-        // claiming is in process
-        if (Number(chainId) !== Number(connectorChainId) && Object.keys(chains).includes(String(chainId))) {
-          return <ConnectToChainPage
-            chainToConnectTo={chainId}
-            wallet={account}
-            context={context}
-          /> 
-        }
+        //connect to chain
+        return <ConnectToChainPage
+          chainToConnectTo={chainId}
+          wallet={account}
+          context={context}
+        />
+
+      case 5:
+        // checking token
+        return <TokenCheckPage
+          wallet={account}
+          chainId={chainId}
+        />
+
+      case 6:
+        // tweeter screen
+        return <Tweet
+          {...commonData}
+          onClick={_ => {
+            return this.actions().user.setStep({ step: 7 })
+          }}
+        />
+
+      case 7:
+        // check tweet screen
+        return <CheckTweet
+          {...commonData}
+        />
+
+      case 8:
+        // "you are in" screen
+        return <TokenFound
+          wallet={account}
+          chainId={chainId}
+        />
+        
+
+      case 9:
         return <ClaimingProcessPage
           {...commonData}
         />
-      case 5:
+
+      case 10:
         // claiming finished successfully
         return <ClaimingFinishedPage
           {...commonData}
         />
+
+      case 11:
+        // check Eligibility
+        return <VerifyEligibility />
+
+      case 12:
+        // checked
+        return <EligibilityVerified />
+
+      case 13:
+        // checked
+        return <NeedWallet context={context} />
+
+      case 14:
+        // checked
+        return <ClaimingFinishedPage
+          {...commonData}
+          title={this.t('titles.alreadyClaimed')}
+        />
+
+      case 15:
+        // checked
+        return <CampaignOverPage
+          {...commonData}
+        />
+
       default:
         // зloading
         return <Loading />

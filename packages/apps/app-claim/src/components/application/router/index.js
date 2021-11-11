@@ -1,7 +1,7 @@
 import React from 'react'
 import i18next from 'i18next'
-import { Switch, Route } from 'react-router'
-import { Main, Page, NotFound } from 'components/pages'
+import { Switch, Route } from 'react-router-dom'
+import { Main, Page, NotFound, Tweet } from 'components/pages'
 import './styles'
 
 import { actions } from 'decorators'
@@ -15,15 +15,11 @@ class AppRouter extends React.Component {
     i18next.changeLanguage(locale)
   }
 
-  componentDidMount () {
-    window.localStorage && window.localStorage.clear()
-  }
-
   render () {
-    const { context } = this.props
+    const { web3Provider, context } = this.props
     return <Page>
       <Switch>
-        <Route path='/' render={props => <Main {...props} context={context} />} />
+        <Route path='/' exact render={props => <Main {...props} web3Provider={web3Provider} context={context} />} />
         <Route path='*' component={NotFound} />
       </Switch>
     </Page>

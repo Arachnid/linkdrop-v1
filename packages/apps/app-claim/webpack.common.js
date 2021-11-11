@@ -4,6 +4,7 @@ const autoprefixer = require('autoprefixer')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+
 const CSSModuleLoader = {
   loader: 'css-loader',
   options: {
@@ -38,6 +39,7 @@ const postCSSLoader = {
 
 module.exports = {
   entry: {
+    vendor: ['webpack/hot/dev-server', '@babel/polyfill', 'react', 'react-dom', 'redux'],
     main: './src/index.js'
   },
   output: {
@@ -55,9 +57,9 @@ module.exports = {
     ],
     alias: {
       wallets: path.resolve(__dirname, '../../../configs/wallets.config'),
+      chains: path.resolve(__dirname, '../../../configs/chains.config'),
       dapps: path.resolve(__dirname, '../../../configs/dapps.config'),
       config: path.resolve(__dirname, '../../../configs/app.config'),
-      chains: path.resolve(__dirname, '../../../configs/chains.config'),
       'config-claim': path.resolve(__dirname, '../../../configs/claim.config'),
       variables: path.resolve(__dirname, '../linkdrop-commons/variables/index.module.scss')
     }
@@ -87,14 +89,13 @@ module.exports = {
         postCSSLoader
       ]
     }, {
-      test: /\.(png|woff|woff2|eot|ttf|svg|otf|gif)$/,
+      test: /\.(png|woff|woff2|eot|ttf|svg|otf|gif|jpg|jpeg)$/,
       use: {
-        loader: 'url-loader',
+        loader: 'file-loader?limit=100000',
         options: {
-          limit: 100000
-        }
+          esModule: false,
+        },
       }
-
     }]
   },
   node: {
@@ -108,21 +109,26 @@ module.exports = {
       filename: 'style.[hash].css'
     }),
     new HtmlWebpackPlugin({
+      inject: false,
       hash: true,
       template: './src/index.html',
-      filename: 'index.html',
+      filename: 'index.html'
     }),
     new webpack.DefinePlugin({
       MASTER_COPY: JSON.stringify(process.env.MASTER_COPY),
       FACTORY: JSON.stringify(process.env.FACTORY),
       INFURA_PK: JSON.stringify(process.env.INFURA_PK),
-      JSON_RPC_URL_XDAI: JSON.stringify(process.env.JSON_RPC_URL_XDAI),
       INITIAL_BLOCK_RINKEBY: JSON.stringify(process.env.INITIAL_BLOCK_RINKEBY),
       INITIAL_BLOCK_MAINNET: JSON.stringify(process.env.INITIAL_BLOCK_MAINNET),
       INITIAL_BLOCK_GOERLI: JSON.stringify(process.env.INITIAL_BLOCK_GOERLI),
       INITIAL_BLOCK_ROPSTEN: JSON.stringify(process.env.INITIAL_BLOCK_ROPSTEN),
       INITIAL_BLOCK_KOVAN: JSON.stringify(process.env.INITIAL_BLOCK_KOVAN),
+      CONTRACT_ADDRESS: JSON.stringify(process.env.CONTRACT_ADDRESS),
+      MAIN_TOKEN_TITLE: JSON.stringify(process.env.MAIN_TOKEN_TITLE),
+      DEFAULT_CHAIN_ID:JSON.stringify(process.env.DEFAULT_CHAIN_ID),
+      API_URL: JSON.stringify(process.env.API_URL),
       IPFS_GATEWAY_URL: JSON.stringify(process.env.IPFS_GATEWAY_URL),
+      TWEET_ADDRESS_SALT: JSON.stringify(process.env.TWEET_ADDRESS_SALT),
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
       }

@@ -14,7 +14,7 @@ class TokenIdInput extends React.Component {
   }
   render () {
     const { tokenId } = this.state
-    const { addToken, setField, className, tokenIds, title = this.t('titles.tokenIdPlaceholder') } = this.props
+    const { addToken, setField, className, tokenIds } = this.props
     return <div className={classnames(styles.tokenId, className)}>
       {tokenIds && tokenIds.length > 0 && <div
         className={styles.tokenIdsAdded}
@@ -26,7 +26,7 @@ class TokenIdInput extends React.Component {
       />}
       <div className={styles.tokensIdContainer}>
         <Input
-          placeholder={title}
+          placeholder={this.t('titles.tokenIdPlaceholder')}
           value={tokenId || ''}
           className={styles.input}
           onChange={({ value }) => this.setState({

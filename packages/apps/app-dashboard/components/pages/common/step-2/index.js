@@ -9,7 +9,6 @@ import NextButton from './next-button'
 import config from 'config-dashboard'
 import { defineDefaultSymbol } from 'helpers'
 import { linksLimit } from 'app.config.js'
-import { convertFromExponents } from '@linkdrop/commons'
 
 @actions(({
   user: {
@@ -22,8 +21,7 @@ import { convertFromExponents } from '@linkdrop/commons'
     ethBalanceFormatted,
     erc20BalanceFormatted,
     address,
-    erc721IsApproved,
-    erc1155IsApproved
+    erc721IsApproved
   },
   metamask: {
     status: metamaskStatus
@@ -51,8 +49,7 @@ import { convertFromExponents } from '@linkdrop/commons'
   proxyAddress,
   tokenType,
   erc20BalanceFormatted,
-  erc721IsApproved,
-  erc1155IsApproved
+  erc721IsApproved
 }))
 @translate('pages.campaignCreate')
 class Step2 extends React.Component {
@@ -65,7 +62,7 @@ class Step2 extends React.Component {
     }
   }
 
-  componentWillReceiveProps ({ linksAmount, erc721IsApproved, erc1155IsApproved, metamaskStatus, errors, ethBalanceFormatted, erc20BalanceFormatted }) {
+  componentWillReceiveProps ({ linksAmount, erc721IsApproved, metamaskStatus, errors, ethBalanceFormatted, erc20BalanceFormatted }) {
     const {
       metamaskStatus: prevMetamaskStatus,
       errors: prevErrors,
@@ -76,7 +73,6 @@ class Step2 extends React.Component {
       currentAddress,
       tokenType,
       erc721IsApproved: prevErc721IsApproved,
-      erc1155IsApproved: prevErc1155IsApproved,
       ethBalanceFormatted: prevEthBalanceFormatted
     } = this.props
 
@@ -88,10 +84,8 @@ class Step2 extends React.Component {
           this.intervalCheck = window.setInterval(_ => this.actions().tokens.getEthBalance({ account: proxyAddress, chainId }), config.balanceCheckInterval)
         } else if (tokenType === 'erc20') {
           this.intervalCheck = window.setInterval(_ => this.actions().tokens.getERC20Balance({ chainId, tokenAddress, account: proxyAddress, currentAddress }), config.balanceCheckInterval)
-        } else if (tokenType === 'erc721') {
-          this.intervalCheck = window.setInterval(_ => this.actions().tokens.getERC721Approved({ chainId, tokenAddress, account: proxyAddress, currentAddress }), config.balanceCheckInterval)
         } else {
-          this.intervalCheck = window.setInterval(_ => this.actions().tokens.getERC1155Approved({ chainId, tokenAddress, account: proxyAddress, currentAddress }), config.balanceCheckInterval)
+          this.intervalCheck = window.setInterval(_ => this.actions().tokens.getERC721Approved({ chainId, tokenAddress, account: proxyAddress, currentAddress }), config.balanceCheckInterval)
         }
       })
     }
@@ -127,17 +121,8 @@ class Step2 extends React.Component {
           window.setTimeout(_ => this.actions().user.setStep({ step: 3 }), config.nextStepTimeout)
         })
       }
-    } else if (tokenType === 'erc721') {
-      if (erc721IsApproved && !prevErc721IsApproved) {
-        this.setState({
-          loading: false
-        }, _ => {
-          this.intervalCheck && window.clearInterval(this.intervalCheck)
-          window.setTimeout(_ => this.actions().user.setStep({ step: 3 }), config.nextStepTimeout)
-        })
-      }
     } else {
-      if (erc1155IsApproved && !prevErc1155IsApproved) {
+      if (erc721IsApproved && !prevErc721IsApproved) {
         this.setState({
           loading: false
         }, _ => {
@@ -151,8 +136,6 @@ class Step2 extends React.Component {
   render () {
     const { ethAmount, tokenType, tokenAmount, linksAmount, tokenSymbol, loading, currentAddress } = this.props
     const { loading: stateLoading } = this.state
-    const totalLinks = tokenType === 'erc1155' ? linksAmount.length : linksAmount
-
     return <div className={styles.container}>
       {(stateLoading || loading) && <PageLoader transaction={stateLoading} />}
       <PageHeader title={this.t('titles.summaryPay')} />
@@ -166,7 +149,7 @@ class Step2 extends React.Component {
                 </h3>
 
                 <div className={styles.dataContent}>
-                  {totalLinks}
+                  {linksAmount}
                 </div>
               </div>
               <div className={styles.data}>
@@ -174,10 +157,10 @@ class Step2 extends React.Component {
                   {this.t('titles.serviceFeeTitle')}
                 </h3>
                 <div className={styles.dataContent}>
-                  {`${convertFromExponents(totalLinks * config.linkPrice)} ${this.defaultSymbol}`}
+                  {`${linksAmount * config.linkPrice} ${this.defaultSymbol}`}
                 </div>
                 <div className={styles.extraDataContent}>
-                  {this.t('titles.ethPerLink', { symbol: this.defaultSymbol, eth: convertFromExponents(config.linkPrice) })}
+                  {this.t('titles.ethPerLink', { symbol: this.defaultSymbol, eth: config.linkPrice })}
                 </div>
 
               </div>
@@ -199,7 +182,7 @@ class Step2 extends React.Component {
           <div className={styles.serviceFee}>{this.t('texts._18')}</div>
           <ApproveSummary
             tokenType={tokenType}
-            linksAmount={totalLinks}
+            linksAmount={linksAmount}
             serviceFee={config.linkPrice}
             ethAmount={ethAmount}
             tokenAmount={tokenAmount}
@@ -209,13 +192,13 @@ class Step2 extends React.Component {
             tokenType={tokenType}
             tokenAmount={tokenAmount}
             currentAddress={currentAddress}
-            linksAmount={totalLinks}
+            linksAmount={linksAmount}
             ethAmount={ethAmount}
             serviceFee={config.linkPrice}
           />
         </div>
         <div className={styles.description}>
-          <Instruction linksAmount={totalLinks} ethAmount={ethAmount} tokenAmount={tokenAmount} tokenType={tokenType} />
+          <Instruction linksAmount={linksAmount} ethAmount={ethAmount} tokenAmount={tokenAmount} tokenType={tokenType} />
         </div>
       </div>
     </div>

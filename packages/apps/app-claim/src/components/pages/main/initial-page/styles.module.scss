@@ -2,13 +2,11 @@
 
 .icon {
   max-width: 100%;
-  width: 100%;
-  height: auto;
 }
 
 .title {
   font-size: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   b {
     font-family: 'Inter-Bold';
@@ -20,20 +18,29 @@
   }
 }
 
+.gif {
+  max-width: 227px;
+  margin-bottom: 20px;
+}
+
+.titleVariant {
+  font-size: 24px;
+  text-transform: none;
+}
+
+
 .button {
-  margin-bottom: 12px;
-  max-width: 343px;
+  margin-bottom: 15px;
+  max-width: 300px;
 }
 
 .terms {
   margin-bottom: 25px;
-  font-size: 12px;
-  color: #C5C7CD;
-  font-family: 'Inter-Bold';
+  font-size: 14px;
+  color: $textGreyColor;
 
   a {
-    text-decoration: underline;
-    color: #C5C7CD;
+    color: $textGreyColor;
   }
 }
 
@@ -42,10 +49,25 @@
 }
 
 .tokenIconNft {
-  width: 227px!important;
-  height: auto!important;
+  width: 140px;
+  height: 140px;
+}
+
+.tokenIconNftLarge {
+  width: 200px!important;
+  height: 200px!important;
+}
+
+.wallet {
+  font-size: 18px;
+  margin-bottom: 30px;
 }
 
 .wallet span {
   font-family: 'Inter-Medium';
+}
+
+.checkLink {
+  max-width: 200px;
+  cursor: pointer;
 }

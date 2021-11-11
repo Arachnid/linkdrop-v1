@@ -1,7 +1,7 @@
 import { put, select } from 'redux-saga/effects'
 import { mocks, defineJsonRpcUrl } from '@linkdrop/commons'
 import { ethers } from 'ethers'
-import ERC721Mock from 'contracts/ERC721Mock.json'
+import NFTMock from 'contracts/NFTMock.json'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
 
 const generator = function * ({ payload }) {
@@ -14,13 +14,14 @@ const generator = function * ({ payload }) {
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
     const gasPrice = yield provider.getGasPrice()
     const oneGwei = ethers.utils.parseUnits('1', 'gwei')
-    const tokenContract = yield new web3Provider.eth.Contract(ERC721Mock.abi, tokenAddress)
+
+    const tokenContract = yield new web3Provider.eth.Contract(NFTMock.abi, tokenAddress)
     const proxyAddress = yield select(generator.selectors.proxyAddress)
     const approveData = yield tokenContract.methods.setApprovalForAll(proxyAddress, true).encodeABI()
     
 
     try {
-      const tokenContract = yield new ethers.Contract(tokenAddress, ERC721Mock.abi, provider)
+      const tokenContract = yield new ethers.Contract(tokenAddress, NFTMock.abi, provider)
       const erc721IsApproved = yield tokenContract.isApprovedForAll(
         fromWallet,
         proxyAddress

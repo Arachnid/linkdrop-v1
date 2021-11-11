@@ -11,14 +11,12 @@ import { defineDefaultSymbol } from 'helpers'
   },
   campaigns: {
     ethAmount,
-    linksAmount,
-    tokenType
+    linksAmount
   }
 }) => ({
   chainId,
   linksAmount,
-  ethAmount,
-  tokenType
+  ethAmount
 }))
 @translate('pages.campaignCreate')
 class EthAmountData extends React.Component {
@@ -29,9 +27,8 @@ class EthAmountData extends React.Component {
   }
 
   render () {
-    const { ethAmount, linksAmount, tokenType } = this.props
+    const { ethAmount, linksAmount } = this.props
     if (!ethAmount || Number(ethAmount) === 0) { return null }
-    const totalLinks = tokenType === 'erc1155' ? linksAmount.length : linksAmount
     return <div className={styles.data}>
       <h3 className={styles.dataTitle}>
         {this.t('titles.totalEthInLinks', { symbol: this.defaultSymbol })}

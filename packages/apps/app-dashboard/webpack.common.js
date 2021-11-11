@@ -106,7 +106,6 @@ module.exports = {
       PORTIS_DAPP_ID: JSON.stringify(process.env.PORTIS_DAPP_ID),
       FORMATIC_API_KEY_TESTNET: JSON.stringify(process.env.FORMATIC_API_KEY_TESTNET),
       FORMATIC_API_KEY_MAINNET: JSON.stringify(process.env.FORMATIC_API_KEY_MAINNET),
-      IPFS_GATEWAY_URL: JSON.stringify(process.env.IPFS_GATEWAY_URL),
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
       }

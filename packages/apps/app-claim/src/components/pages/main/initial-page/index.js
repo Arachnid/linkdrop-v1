@@ -1,13 +1,16 @@
 import React from 'react'
 import { Alert, Icons } from '@linkdrop/ui-kit'
-import { translate } from 'decorators'
+import { translate, actions } from 'decorators'
 import { shortenString, getHashVariables } from '@linkdrop/commons'
 import text from 'texts'
 import classNames from 'classnames'
 import { RoundedButton } from 'components/common'
+import tokenImage from './token.jpeg'
+import { mainTokenTitle } from 'app.config.js'
 
 import styles from './styles.module'
 import commonStyles from '../styles.module'
+@actions(({}) => ({}))
 @translate('pages.main')
 class InitialPage extends React.Component {
   constructor (props) {
@@ -27,16 +30,8 @@ class InitialPage extends React.Component {
     }
   }
 
-  renderIcon ({ icon, nftAddress, symbol }) {
-    const { iconType } = this.state
-    const finalIcon = iconType === 'default' ? <img onError={_ => this.setState({ iconType: 'blank' })} className={styles.icon} src={icon} /> : <Icons.Star />
-    return <Alert
-      noBorder={iconType === 'default' && symbol !== 'ETH' && symbol !== 'xDAI'}
-      className={classNames(styles.tokenIcon, {
-        [styles.tokenIconNft]: nftAddress && iconType === 'default'
-      })}
-      icon={finalIcon}
-    />
+  renderIcon () {
+    return <img className={styles.gif} src={tokenImage} />
   }
 
   renderTitle ({ amount, symbol, wallet }) {
@@ -64,10 +59,10 @@ class InitialPage extends React.Component {
 
   render () {
     const { onClick, amount, symbol, loading, icon, wallet } = this.props
-    const { nftAddress } = getHashVariables()
+    const { nftAddress, variant } = getHashVariables()
     return <div className={commonStyles.container}>
-      {this.renderIcon({ nftAddress, symbol, icon })}
-      {this.renderTitle({ amount, symbol, wallet })}
+      {this.renderIcon()}
+      {this.renderTitle({ amount, symbol: mainTokenTitle, wallet })}
       <RoundedButton
         loading={loading}
         className={styles.button}
@@ -82,6 +77,17 @@ class InitialPage extends React.Component {
           })
         }}
       />
+      {false && <div className={styles.wallet} dangerouslySetInnerHTML={{ __html: this.t('titles.claimTo', { wallet: shortenString({ wallet }) }) }} />}
+      <div
+        className={styles.checkLink}
+        onClick={_ => {
+          this.actions().user.setStep({
+            step: 11
+          })
+        }}
+      >
+        {this.t('titles.checkIfEligible')}
+      </div>
     </div>
   }
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { actions, translate } from 'decorators'
 import styles from './styles.module'
 import classNames from 'classnames'
-import { getHashVariables, convertFromExponents } from '@linkdrop/commons'
+import { getHashVariables } from '@linkdrop/commons'
 import { Select, PageHeader, PageLoader, NFTToken, Note, Button } from 'components/common'
 import { TokenAddressInput, LinksContent, NextButton, AddEthField, EthTexts, TokenIdInput } from 'components/pages/common'
 import config from 'config-dashboard'
@@ -105,6 +105,9 @@ class Step1 extends React.Component {
         <div className={styles.form}>
           <h3 className={styles.subtitle}>
             <span>{this.t('titles.contractAddress')}</span>
+            <a className={styles.back} href='/#/campaigns/create-erc721'>
+              {this.t('titles.back')}
+            </a>
           </h3>
           {this.renderTokenInputs({ tokenId, addEth, ethAmount, tokenAddress, erc721SingleAsset })}
           {this.defaultSymbol !== 'xDAI' && <div className={styles.chooseWallet}>
@@ -240,8 +243,8 @@ class Step1 extends React.Component {
       <p className={classNames(styles.text, styles.textMargin15)}>{linksAmount} {tokenSymbol}</p>
       <EthTexts ethAmount={ethAmount} linksAmount={linksAmount} />
       <LinksContent tokenAmount={tokenAmount} tokenSymbol={tokenSymbol} ethAmount={ethAmount} tokenType='erc721' />
-      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice * linksAmount) }) }} />
-      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice) }) }} />
+      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: config.linkPrice * linksAmount }) }} />
+      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: config.linkPrice }) }} />
     </div>
   }
 

@@ -9,8 +9,6 @@
     "start": "npx babel-node server.js",
     "dev": "nodemon --exec npx babel-node server.js",
     "deploy-rinkeby": "cd deploy && npx shipit rinkeby deploy",
-    "deploy-rinkeby-erc1155": "cd deploy && npx shipit rinkeby1155 deploy",
-    "deploy-mainnet-erc1155": "cd deploy && npx shipit mainnet1155 deploy",    
     "deploy-ropsten": "cd deploy && npx shipit ropsten deploy",
     "deploy-mainnet": "cd deploy && npx shipit mainnet deploy",
     "deploy-kovan": "cd deploy && npx shipit kovan deploy",    

@@ -13,7 +13,7 @@ export default ({ chainId, infuraPk }) => {
   } else if (String(chainId) === '137') {
     return 'https://rpc-mainnet.maticvigil.com/v1/ad4cd2ea018ddb1ccd0418ffa43c27b3d99fbd55'
   } else if (String(chainId) === '80001') {
-    return 'https://rpc-mumbai.maticvigil.com/v1/f592ae2e5afb3bebe39314e9bd0949de5b74cd2f'
+    return 'https://rpc-mumbai.maticvigil.com/v1/0403e79900dcf51cbd8e87912aa5f5ea07d12a20'
   }
   
   return `https://${networkName}.infura.io/v3/${infuraPk}`

@@ -1,5 +1,5 @@
 import { put, select } from 'redux-saga/effects'
-import ERC20Mock from 'contracts/ERC20Mock.json'
+import TokenMock from 'contracts/TokenMock.json'
 import { ethers } from 'ethers'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
 import { defineJsonRpcUrl } from '@linkdrop/commons'
@@ -27,7 +27,7 @@ const generator = function * ({ payload }) {
     yield put({ type: 'TOKENS.SET_TOKEN_TYPE', payload: { tokenType: 'erc20' } })
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-    const tokenContract = yield new ethers.Contract(tokenAddress, ERC20Mock.abi, provider)
+    const tokenContract = yield new ethers.Contract(tokenAddress, TokenMock.abi, provider)
     const decimals = yield tokenContract.decimals()
     const { tokenBalance, tokenBalanceFormatted } = yield getCurrentTokenBalance({ payload: { decimals, contract: tokenContract, account: currentAddress } })
     yield put({

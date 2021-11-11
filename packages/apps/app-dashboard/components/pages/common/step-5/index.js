@@ -46,7 +46,17 @@ class Step5 extends React.Component {
           <p className={classNames(styles.text, styles.textMargin80)}>{this.t('titles.nodeJsSupport')}</p>
           <p className={classNames(styles.text, styles.textMargin20)}>{this.t('titles.codeDetails')}</p>
           <xmp className={styles.codeBlock}>
-            {this.renderInstructions ({ chainId, currentAddress, factory, campaignId, tokenAmount, tokenAmountFormatted, privateKey, ethAmount, tokenAddress, weiAmount })}
+            {this.t(`texts.${tokenType === 'erc20' || tokenType === 'eth' ? 'codeBlockErc20' : 'codeBlockErc721'}`, {
+              chain: defineNetworkName({ chainId }),
+              masterAddress: currentAddress,
+              campaignId: campaignId,
+              linkdropSigner: privateKey,
+              symbol: this.defaultSymbol,
+              weiAmount: ethAmount ? weiAmount : 0,
+              tokenAddress: tokenAddress || ethers.constants.AddressZero,
+              tokenAmount: tokenAmount ? tokenAmountFormatted : 0,
+              factoryAddress: factory
+            })}
           </xmp>
         </div>
         <div className={styles.manual}>
@@ -77,28 +87,6 @@ class Step5 extends React.Component {
         <p className={classNames(styles.text, styles.ellipsis)} dangerouslySetInnerHTML={{ __html: this.t('titles.campaignId', { campaignId }) }} />
       </div>
     </div>
-  }
-
-
-  renderInstructions ({ tokenType, chainId, currentAddress, factory, campaignId, tokenAmount, tokenAmountFormatted, privateKey, ethAmount, tokenAddress, weiAmount }) {
-    const data = {
-      chain: defineNetworkName({ chainId }),
-      masterAddress: currentAddress,
-      campaignId: campaignId,
-      linkdropSigner: privateKey,
-      symbol: this.defaultSymbol,
-      weiAmount: ethAmount ? weiAmount : 0,
-      tokenAddress: tokenAddress || ethers.constants.AddressZero,
-      tokenAmount: tokenAmount ? tokenAmountFormatted : 0,
-      factoryAddress: factory
-    }
-    if (tokenType === 'erc20' || tokenType === 'eth') {
-      return this.t(`texts.codeBlockErc20`, data)
-    }
-    if (tokenType === 'erc721') {
-      return this.t(`texts.codeBlockErc721`, data)
-    }
-    return this.t(`texts.codeBlockErc1155`, data)
   }
 }
 

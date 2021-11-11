@@ -48,8 +48,7 @@ app.use((error, req, res, next) => {
     res.status(error.statusCode)
     res.send({
       success: false,
-	error: error.message,
-	message: error.message,
+      error: error.message,
       errors: ['SERVER_ERROR_OCCURED']
     })
   } else if (error.reason) {

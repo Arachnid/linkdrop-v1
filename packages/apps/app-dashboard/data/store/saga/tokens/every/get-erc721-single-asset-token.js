@@ -1,6 +1,6 @@
 import { put, select, call } from 'redux-saga/effects'
 import { ethers } from 'ethers'
-import ERC721Mock from 'contracts/ERC721Mock.json'
+import NFTMock from 'contracts/NFTMock.json'
 import { infuraPk, jsonRpcUrlXdai } from 'app.config.js'
 import { defineJsonRpcUrl } from '@linkdrop/commons'
 import { getERC721TokenData } from 'data/api/tokens'
@@ -18,7 +18,7 @@ const generator = function * ({ payload }) {
     const { address } = currentAsset
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-    const tokenContract = yield new ethers.Contract(address, ERC721Mock.abi, provider)
+    const tokenContract = yield new ethers.Contract(address, NFTMock.abi, provider)
     const isOwner = yield tokenContract.ownerOf(tokenId)
     if (isOwner !== userAddress) {
       yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })

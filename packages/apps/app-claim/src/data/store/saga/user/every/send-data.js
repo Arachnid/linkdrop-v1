@@ -2,6 +2,7 @@ import { put, call, select } from 'redux-saga/effects'
 import { sendData } from 'data/api/user'
 import { defineNetworkName, getHashVariables } from '@linkdrop/commons'
 import { delay } from 'redux-saga'
+import { ethers } from 'ethers'
 
 const generator = function * ({ payload }) {
   try {

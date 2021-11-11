@@ -3,42 +3,40 @@ import { Loading } from '@linkdrop/ui-kit'
 import { translate, actions } from 'decorators'
 import styles from './styles.module'
 import commonStyles from '../styles.module'
-import { getHashVariables, defineEtherscanUrl } from '@linkdrop/commons'
+import { defineEtherscanUrl } from '@linkdrop/commons'
 import classNames from 'classnames'
 
 @actions(({ tokens: { transactionId, transactionStatus } }) => ({ transactionId, transactionStatus }))
 @translate('pages.main')
 class ClaimingProcessPage extends React.Component {
-
-  componentDidMount () {
-    const { chainId } = getHashVariables()
-    const { transactionId } = this.props
-    this.statusCheck = window.setInterval(_ => this.actions().tokens.checkTransactionStatus({ transactionId, chainId }), 3000)
-  }
-
   componentWillReceiveProps ({ transactionStatus: status }) {
     const { transactionStatus: prevStatus } = this.props
     if (status != null && prevStatus === null) {
       this.statusCheck && window.clearInterval(this.statusCheck)
-      this.actions().user.setStep({ step: 5 })
+      this.actions().user.setStep({ step: 10 })
     }
   }
 
-  render () {
-    const { chainId, variant } = getHashVariables()
-    const { transactionId } = this.props
+  componentDidMount () {
+    const { chainId, transactionId } = this.props
+    this.statusCheck = window.setInterval(_ => this.actions().tokens.checkTransactionStatus({ transactionId, chainId }), 3000)
+  }
 
+  render () {
+    const { transactionId, chainId } = this.props
     const scannerDct = {
       "100": 'seeDetailsBlockscout',      
       "97": 'seeDetailsBscScan',
       "56": 'seeDetailsBscScan',
       "137": 'seeDetailsExplorer',
+      "80001": 'seeDetailsExplorer'
     }
     const seeDetails = scannerDct[String(chainId)] || 'seeDetails'
+    console.log(`${defineEtherscanUrl({ chainId })}tx/${transactionId}`)
     
     return <div className={commonStyles.container}>
       <Loading container size='small' className={styles.loading} />
-      {this.renderTitle({ variant })}
+      {this.renderTitle()}
       <div className={styles.subtitle}>{this.t('titles.transactionInProcess')}</div>
       <div className={styles.description}>{this.t('titles.instructions')}</div>
       <div
@@ -54,9 +52,9 @@ class ClaimingProcessPage extends React.Component {
     </div>
   }
 
-  renderTitle ({ variant }) {
+  renderTitle () {
     return <div className={styles.title}>
-      {this.t(`titles.${variant ? 'claimingNFT' : 'claiming'}`)}
+      {this.t(`titles.claiming`)}
     </div>
   }
 }

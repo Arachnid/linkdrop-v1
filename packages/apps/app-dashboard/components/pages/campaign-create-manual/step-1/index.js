@@ -9,7 +9,6 @@ import config from 'config-dashboard'
 import Immutable from 'immutable'
 import wallets from 'wallets'
 import { TokenAddressInput, LinksContent, NextButton, AddEthField, EthTexts } from 'components/pages/common'
-import { convertFromExponents } from '@linkdrop/commons'
 
 @actions(({
   user: {
@@ -24,11 +23,13 @@ import { convertFromExponents } from '@linkdrop/commons'
     links
   },
   tokens: {
+    assets,
     symbol,
     currentEthBalance,
     currentTokenBalance
   }
 }) => ({
+  assets,
   privateKey,
   chainId,
   symbol,
@@ -52,7 +53,7 @@ class Step1 extends React.Component {
       ethAmount: '0',
       linksAmount: '0',
       addEth: false,
-      tokenAddress: ethers.constants.AddressZero,
+      tokenAddress: null,
       wallet: (this.WALLETS[0] || {}).value
     }
   }
@@ -76,28 +77,23 @@ class Step1 extends React.Component {
     if (!proxyAddress) {
       this.actions().campaigns.createProxyAddress({ campaignId: items.length })
     }
-    this.actions().tokens.getAssets()
-  }
-
-  defineTokenSymbol ({ tokenAddress }) {
-    const { assets, chainId } = this.props
-    if (tokenAddress === ethers.constants.AddressZero) {
-      return this.defaultSymbol
-    }
+    this.actions().tokens.getAssets({ currentAddress })
   }
 
   render () {
-    const { ethAmount, linksAmount, tokenAmount, wallet, addEth, tokenAddress, options } = this.state
+    const { tokenSymbol, ethAmount, linksAmount, tokenAmount, wallet, addEth, tokenAddress, options } = this.state
     const { symbol, loading, currentEthBalance, currentTokenBalance, chainId, privateKey, proxyAddress } = this.props
     const tokenType = this.defineTokenType({ tokenAddress })
-    const tokenSymbol = this.defineTokenSymbol({ tokenAddress })
-    return <div className={classNames(styles.container)}>
+    return <div className={classNames(styles.container, { [styles.customTokenEnabled]: tokenSymbol === 'ERC20' })}>
       {loading && <PageLoader />}
       <PageHeader title={this.t('titles.setupCampaign')} />
       <div className={styles.main}>
         <div className={styles.form}>
           <h3 className={styles.subtitle}>
             <span>{this.t('titles.contractAddress')}</span>
+            <a className={styles.back} href='/#/campaigns/create-erc20'>
+              {this.t('titles.back')}
+            </a>
           </h3>
           {this.renderTokenInputs({ currentEthBalance, currentTokenBalance, ethAmount, tokenType, tokenAddress, symbol, tokenSymbol, tokenAmount, addEth })}
           <div className={styles.linksAmount}>
@@ -168,12 +164,7 @@ class Step1 extends React.Component {
       </div>
     </div>
     return <div>
-      <TokenAddressInput
-        className={styles.tokenAddressInput}
-        tokenAddress={tokenAddress}
-        tokenType={tokenType}
-        setField={({ value, field }) => this.setField({ value, field })}
-      />
+      <TokenAddressInput className={styles.tokenAddressInput} tokenAddress={tokenAddress} tokenType={tokenType} setField={({ value, field }) => this.setField({ value, field })} />
       <div className={styles.currentBalance}>
         {currentTokenBalance && <div>{this.t('titles.balance')} {currentTokenBalance} {tokenType === 'erc20' ? symbol : tokenSymbol}</div>}
         <div>{this.t('titles.balance')} {currentEthBalance} {this.defaultSymbol}</div>
@@ -182,32 +173,21 @@ class Step1 extends React.Component {
     </div>
   }
 
-  defineTokenType ({ tokenAddress }) {
-    if (tokenAddress === ethers.constants.AddressZero) {
-      return 'eth'
-    }
+  defineTokenType () {
     return 'erc20'
   }
 
   renderTexts ({ ethAmount, tokenAddress, linksAmount, tokenAmount, tokenSymbol, addEth, tokenType }) {
     const value = tokenType === 'erc20' ? tokenAmount : ethAmount
-    if (tokenType === 'erc20') {
-      if (!linksAmount || !value || !tokenAddress) {
-        return <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)}>{this.t('titles.fillTheField')}</p>
-      }
-    }
-
-    if (tokenType === 'eth') {
-      if (!linksAmount || Number(linksAmount) === 0 || !value || Number(value) === 0) {
-        return <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)}>{this.t('titles.fillTheField')}</p>
-      }
+    if (!linksAmount || !value || !tokenAddress) {
+      return <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)}>{this.t('titles.fillTheField')}</p>
     }
     return <div>
-      {tokenType === 'erc20' && <p className={classNames(styles.text, styles.textMargin15)}>{value * linksAmount} {tokenSymbol}</p>}
+      <p className={classNames(styles.text, styles.textMargin15)}>{value * linksAmount} {tokenSymbol}</p>
       <EthTexts ethAmount={ethAmount} linksAmount={linksAmount} />
       <LinksContent tokenAmount={tokenAmount} tokenSymbol={tokenSymbol} ethAmount={ethAmount} tokenType={tokenType} />
-      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice * linksAmount) }) }} />
-      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice) }) }} />
+      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: config.linkPrice * linksAmount }) }} />
+      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: config.linkPrice }) }} />
     </div>
   }
 
@@ -224,7 +204,7 @@ class Step1 extends React.Component {
       [field]: value
     }, _ => {
       if (field === 'tokenAddress') {
-        if (value.length === 42 && value !== ethers.constants.AddressZero) {
+        if (value.length === 42) {
           this.actions().tokens.getTokenERC20Data({ tokenAddress: value, chainId })
         } else {
           this.actions().tokens.emptyTokenERC20Data()

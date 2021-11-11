@@ -22,7 +22,7 @@ class Main extends React.Component {
           title={this.t('titles.erc20Campaign')}
           description={this.t('texts.listOfLinks')}
           extraContent={this.t('titles.erc20Eth', { symbol: this.defaultSymbol })}
-          href='/#/campaigns/create-erc20-manual'
+          href='/#/campaigns/create-erc20'
           buttonTitle={this.t('buttons.create')}
         />
 
@@ -30,15 +30,7 @@ class Main extends React.Component {
           title={this.t('titles.erc721Campaign')}
           description={this.t('texts.listOfLinks')}
           extraContent={this.t('titles.erc721Eth', { symbol: this.defaultSymbol })}
-          href='/#/campaigns/create-erc721-manual'
-          buttonTitle={this.t('buttons.create')}
-        />
-
-        <ActionBlock
-          title={this.t('titles.erc1155Campaign')}
-          description={this.t('texts.listOfLinks')}
-          extraContent={this.t('titles.erc1155Eth', { symbol: this.defaultSymbol })}
-          href='/#/campaigns/create-erc1155-manual'
+          href='/#/campaigns/create-erc721'
           buttonTitle={this.t('buttons.create')}
         />
 
