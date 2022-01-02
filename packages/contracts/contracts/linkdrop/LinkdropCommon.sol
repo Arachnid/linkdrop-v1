@@ -2,10 +2,12 @@ pragma solidity >=0.6.0 <0.8.0;
 
 import "../interfaces/ILinkdropCommon.sol";
 import "../storage/LinkdropStorage.sol";
+import "../shiboleth/Validator.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract LinkdropCommon is ILinkdropCommon, LinkdropStorage {
+
+contract LinkdropCommon is Validator, ILinkdropCommon, LinkdropStorage {
 
     /**
     * @dev Function called only once to set owner, linkdrop master, contract version and chain id

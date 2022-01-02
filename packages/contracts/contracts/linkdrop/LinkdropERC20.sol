@@ -149,7 +149,7 @@ contract LinkdropERC20 is ILinkdropERC20, LinkdropCommon {
     * @param _receiverSignature ECDSA signature of linkdrop receiver
     * @return True if success
     */
-    function claim
+    function claimERC20
     (
         uint _weiAmount,
         address _tokenAddress,

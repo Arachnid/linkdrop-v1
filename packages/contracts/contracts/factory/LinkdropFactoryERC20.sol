@@ -69,7 +69,7 @@ contract LinkdropFactoryERC20 is ILinkdropFactoryERC20, LinkdropFactoryCommon {
     * @param _receiverSignature ECDSA signature of linkdrop receiver
     * @return True if success
     */
-    function claim
+    function claimERC20
     (
         uint _weiAmount,
         address _tokenAddress,
@@ -90,7 +90,7 @@ contract LinkdropFactoryERC20 is ILinkdropFactoryERC20, LinkdropFactoryCommon {
         require(isDeployed(_linkdropMaster, _campaignId), "LINKDROP_PROXY_CONTRACT_NOT_DEPLOYED");
 
         // Call claim function in the context of proxy contract
-        ILinkdropERC20(deployed[salt(_linkdropMaster, _campaignId)]).claim
+        ILinkdropERC20(deployed[salt(_linkdropMaster, _campaignId)]).claimERC20
         (
             _weiAmount,
             _tokenAddress,

@@ -23,7 +23,10 @@ auth.config.json
   
 packages/apps/app-claim/node_modules/
 packages/apps/app-claim/dist/
-
+configs/*.config.json
+configs/*.config.json.*  
+  
+  
 packages/apps/app-demo/node_modules/
 packages/apps/app-demo/assets/scripts/
 packages/apps/linkdrop-ui-kit/dist/bundle.js

@@ -21,7 +21,7 @@ export default {
       decimals: 18
     },
     rpcUrls: [
-      'https://rpc-mainnet.maticvigil.com'
+      'https://polygon-rpc.com'
     ],
     blockExplorerUrls: [
       'https://matic.network'

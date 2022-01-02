@@ -18,7 +18,7 @@ interface ILinkdropFactoryERC20 {
     external view
     returns (bool);
 
-    function claim
+    function claimERC20
     (
         uint _weiAmount,
         address _tokenAddress,

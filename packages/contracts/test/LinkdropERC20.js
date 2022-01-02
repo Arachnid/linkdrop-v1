@@ -20,6 +20,11 @@ import {
   computeBytecode
 } from '../scripts/utils'
 
+import {
+  generateClaimCode,
+  generateClaimSig
+} from '../scripts/shiboleth'
+
 const ethers = require('ethers')
 
 // Turn off annoying warnings
@@ -199,302 +204,319 @@ describe('ETH/ERC20 linkdrop tests', () => {
     ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
   })
 
-  it('creates new link key and verifies its signature', async () => {
-    let senderAddr = await proxy.linkdropMaster()
-    expect(linkdropMaster.address).to.eq(senderAddr)
+  // it('creates new link key and verifies its signature', async () => {
+  //   let senderAddr = await proxy.linkdropMaster()
+  //   expect(linkdropMaster.address).to.eq(senderAddr)
 
-    expect(
-      await proxy.verifyLinkdropSignerSignature(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        link.linkdropSignerSignature
-      )
-    ).to.be.true
-  })
+  //   expect(
+  //     await proxy.verifyLinkdropSignerSignature(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       link.linkdropSignerSignature
+  //     )
+  //   ).to.be.true
+  // })
 
-  it('signs receiver address with link key and verifies this signature onchain', async () => {
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  // it('signs receiver address with link key and verifies this signature onchain', async () => {
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    expect(
-      await proxy.verifyReceiverSignature(
-        link.linkId,
-        receiverAddress,
-        receiverSignature
-      )
-    ).to.be.true
-  })
+  //   expect(
+  //     await proxy.verifyReceiverSignature(
+  //       link.linkId,
+  //       receiverAddress,
+  //       receiverSignature
+  //     )
+  //   ).to.be.true
+  // })
 
-  it('non-linkdropMaster should not be able to pause contract', async () => {
-    let proxyInstance = new ethers.Contract(
-      proxyAddress,
-      LinkdropMastercopy.abi,
-      nonsender
-    )
-    // Pausing
-    await expect(proxyInstance.pause({ gasLimit: 500000 })).to.be.revertedWith(
-      'ONLY_LINKDROP_MASTER'
-    )
-  })
+  // it('non-linkdropMaster should not be able to pause contract', async () => {
+  //   let proxyInstance = new ethers.Contract(
+  //     proxyAddress,
+  //     LinkdropMastercopy.abi,
+  //     nonsender
+  //   )
+  //   // Pausing
+  //   await expect(proxyInstance.pause({ gasLimit: 500000 })).to.be.revertedWith(
+  //     'ONLY_LINKDROP_MASTER'
+  //   )
+  // })
 
-  it('linkdropMaster should be able to pause contract', async () => {
-    // Pausing
-    await proxy.pause({ gasLimit: 500000 })
-    let paused = await proxy.paused()
-    expect(paused).to.eq(true)
-  })
+  // it('linkdropMaster should be able to pause contract', async () => {
+  //   // Pausing
+  //   await proxy.pause({ gasLimit: 500000 })
+  //   let paused = await proxy.paused()
+  //   expect(paused).to.eq(true)
+  // })
 
-  it('linkdropMaster should be able to unpause contract', async () => {
-    // Unpausing
-    await proxy.unpause({ gasLimit: 500000 })
-    let paused = await proxy.paused()
-    expect(paused).to.eq(false)
-  })
+  // it('linkdropMaster should be able to unpause contract', async () => {
+  //   // Unpausing
+  //   await proxy.unpause({ gasLimit: 500000 })
+  //   let paused = await proxy.paused()
+  //   expect(paused).to.eq(false)
+  // })
 
-  it('linkdropMaster should be able to cancel link', async () => {
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
-    await expect(proxy.cancel(link.linkId, { gasLimit: 200000 })).to.emit(
-      proxy,
-      'Canceled'
-    )
-    let canceled = await proxy.isCanceledLink(link.linkId)
-    expect(canceled).to.eq(true)
-  })
+  // it('linkdropMaster should be able to cancel link', async () => {
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   await expect(proxy.cancel(link.linkId, { gasLimit: 200000 })).to.emit(
+  //     proxy,
+  //     'Canceled'
+  //   )
+  //   let canceled = await proxy.isCanceledLink(link.linkId)
+  //   expect(canceled).to.eq(true)
+  // })
 
-  it('should fail to claim tokens when paused', async () => {
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  // it('should fail to claim tokens when paused', async () => {
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    // Pausing
-    await proxy.pause({ gasLimit: 500000 })
+  //   // Pausing
+  //   await proxy.pause({ gasLimit: 500000 })
 
-    await expect(
-      factory.checkClaimParams(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature
-      )
-    ).to.be.revertedWith('LINKDROP_PROXY_CONTRACT_PAUSED')
-  })
+  //   await expect(
+  //     factory.checkClaimParams(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature
+  //     )
+  //   ).to.be.revertedWith('LINKDROP_PROXY_CONTRACT_PAUSED')
+  // })
 
-  it('should fail to claim with insufficient allowance', async () => {
-    factory = factory.connect(relayer)
+  // it('should fail to claim with insufficient allowance', async () => {
+  //   factory = factory.connect(relayer)
 
-    // Unpause
-    await proxy.unpause({ gasLimit: 500000 })
+  //   // Unpause
+  //   await proxy.unpause({ gasLimit: 500000 })
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
+  // })
 
-  it('should fail to claim tokens by expired link', async () => {
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  // it('should fail to claim tokens by expired link', async () => {
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      0,
-      version,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     0,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        0,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('LINK_EXPIRED')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       0,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('LINK_EXPIRED')
+  // })
 
-  it('should fail to claim with invalid contract version', async () => {
-    const invalidVersion = 0
+  // it('should fail to claim with invalid contract version', async () => {
+  //   const invalidVersion = 0
 
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      invalidVersion,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     invalidVersion,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
+  // })
 
-  it('should fail to claim with invalid chain id', async () => {
-    const invalidChainId = 0
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  // it('should fail to claim with invalid chain id', async () => {
+  //   const invalidChainId = 0
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      invalidChainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     invalidChainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
+  // })
 
   it('should succesfully claim tokens with valid claim params', async () => {
     // Approving tokens from linkdropMaster to Linkdrop Contract
     await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+    const data = '0x1'
+    const issuerkey = linkdropMaster.privateKey
+    const validator = proxy.address
+    const beneficiary = receiverAddress
+    const { claimkey, authsig } = await generateClaimCode(issuerkey, validator, data)
+    const claimsig = await generateClaimSig(claimkey, validator, beneficiary, authsig)
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+    
+    
+    // link = await createLink(
+    //   linkdropSigner,
+    //   weiAmount,
+    //   tokenAddress,
+    //   tokenAmount,
+    //   expirationTime,
+    //   version,
+    //   chainId,
+    //   proxyAddress
+    // )
 
-    let approverBalanceBefore = await tokenInstance.balanceOf(
-      linkdropMaster.address
-    )
+    // receiverAddress = ethers.Wallet.createRandom().address
+    // receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await factory.claim(
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      link.linkId,
-      linkdropMaster.address,
-      campaignId,
-      link.linkdropSignerSignature,
-      receiverAddress,
-      receiverSignature,
-      { gasLimit: 800000 }
-    )
+    // let approverBalanceBefore = await tokenInstance.balanceOf(
+    //   linkdropMaster.address
+    // )
 
+    // await factory.claim(
+    //   weiAmount,
+    //   tokenAddress,
+    //   tokenAmount,
+    //   expirationTime,
+    //   link.linkId,
+    //   linkdropMaster.address,
+    //   campaignId,
+    //   link.linkdropSignerSignature,
+    //   receiverAddress,
+    //   receiverSignature,
+    //   { gasLimit: 800000 }
+    // )
+    console.log({
+      beneficiary,
+      data,
+      authsig,
+      claimsig
+    })
+    await proxy.claim(beneficiary, data, authsig, claimsig, { gasLimit: 800000 })
+
+    
     let approverBalanceAfter = await tokenInstance.balanceOf(
       linkdropMaster.address
     )
@@ -505,458 +527,458 @@ describe('ETH/ERC20 linkdrop tests', () => {
   })
 
 
-  it('should send fees to relayer if transaction is sponsored', async () => {
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  // it('should send fees to relayer if transaction is sponsored', async () => {
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    const proxyBalanceBefore = await provider.getBalance(
-      proxy.address
-    )
-    const feeReceiverBalanceBefore = await provider.getBalance(
-      feeReceiver
-    )    
+  //   const proxyBalanceBefore = await provider.getBalance(
+  //     proxy.address
+  //   )
+  //   const feeReceiverBalanceBefore = await provider.getBalance(
+  //     feeReceiver
+  //   )    
     
-    await factory.claim(
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      link.linkId,
-      linkdropMaster.address,
-      campaignId,
-      link.linkdropSignerSignature,
-      receiverAddress,
-      receiverSignature,
-      { gasLimit: 800000 }
-    )
+  //   await factory.claim(
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     link.linkId,
+  //     linkdropMaster.address,
+  //     campaignId,
+  //     link.linkdropSignerSignature,
+  //     receiverAddress,
+  //     receiverSignature,
+  //     { gasLimit: 800000 }
+  //   )
 
-    const proxyBalanceAfter = await provider.getBalance(
-      proxy.address
-    )
+  //   const proxyBalanceAfter = await provider.getBalance(
+  //     proxy.address
+  //   )
 
-    const feeReceiverBalanceAfter = await provider.getBalance(
-      feeReceiver
-    )    
+  //   const feeReceiverBalanceAfter = await provider.getBalance(
+  //     feeReceiver
+  //   )    
     
-    expect(proxyBalanceAfter).to.be.lt(proxyBalanceBefore)
-    expect(feeReceiverBalanceAfter).to.be.gt(feeReceiverBalanceBefore)    
-  })
+  //   expect(proxyBalanceAfter).to.be.lt(proxyBalanceBefore)
+  //   expect(feeReceiverBalanceAfter).to.be.gt(feeReceiverBalanceBefore)    
+  // })
 
 
-  it('should NOT send fees to relayer if transaction is not sponsored', async () => {
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  // it('should NOT send fees to relayer if transaction is not sponsored', async () => {
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = relayer.address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = relayer.address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    const proxyBalanceBefore = await provider.getBalance(
-      proxy.address
-    )
-    const feeReceiverBalanceBefore = await provider.getBalance(
-      feeReceiver
-    )    
+  //   const proxyBalanceBefore = await provider.getBalance(
+  //     proxy.address
+  //   )
+  //   const feeReceiverBalanceBefore = await provider.getBalance(
+  //     feeReceiver
+  //   )    
     
-    await factory.claim(
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      link.linkId,
-      linkdropMaster.address,
-      campaignId,
-      link.linkdropSignerSignature,
-      receiverAddress,
-      receiverSignature,
-      { gasLimit: 800000 }
-    )
+  //   await factory.claim(
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     link.linkId,
+  //     linkdropMaster.address,
+  //     campaignId,
+  //     link.linkdropSignerSignature,
+  //     receiverAddress,
+  //     receiverSignature,
+  //     { gasLimit: 800000 }
+  //   )
 
-    const proxyBalanceAfter = await provider.getBalance(
-      proxy.address
-    )
+  //   const proxyBalanceAfter = await provider.getBalance(
+  //     proxy.address
+  //   )
 
-    const feeReceiverBalanceAfter = await provider.getBalance(
-      feeReceiver
-    )    
+  //   const feeReceiverBalanceAfter = await provider.getBalance(
+  //     feeReceiver
+  //   )    
     
-    expect(proxyBalanceAfter).to.eq(proxyBalanceBefore)
-    expect(feeReceiverBalanceAfter).to.eq(feeReceiverBalanceBefore)    
-  })
+  //   expect(proxyBalanceAfter).to.eq(proxyBalanceBefore)
+  //   expect(feeReceiverBalanceAfter).to.eq(feeReceiverBalanceBefore)    
+  // })
 
 
   
-  it('should be able to check link claimed from factory instance', async () => {
-    let claimed = await factory.isClaimedLink(
-      linkdropMaster.address,
-      campaignId,
-      link.linkId
-    )
-    expect(claimed).to.eq(true)
-  })
+  // it('should be able to check link claimed from factory instance', async () => {
+  //   let claimed = await factory.isClaimedLink(
+  //     linkdropMaster.address,
+  //     campaignId,
+  //     link.linkId
+  //   )
+  //   expect(claimed).to.eq(true)
+  // })
 
-  it('should fail to claim link twice', async () => {
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('LINK_CLAIMED')
-  })
+  // it('should fail to claim link twice', async () => {
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('LINK_CLAIMED')
+  // })
 
-  it('should fail to claim unavailable amount of tokens', async () => {
-    const unavailableAmountOfTokens = 1000000000000
+  // it('should fail to claim unavailable amount of tokens', async () => {
+  //   const unavailableAmountOfTokens = 1000000000000
 
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      unavailableAmountOfTokens,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     unavailableAmountOfTokens,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        unavailableAmountOfTokens,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 800000 }
-      )
-    ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       unavailableAmountOfTokens,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 800000 }
+  //     )
+  //   ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
+  // })
 
-  it('should fail to claim tokens with fake linkdropMaster signature', async () => {
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, tokenAmount)
+  // it('should fail to claim tokens with fake linkdropMaster signature', async () => {
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, tokenAmount)
 
-    let wallet = ethers.Wallet.createRandom()
-    let linkId = wallet.address
+  //   let wallet = ethers.Wallet.createRandom()
+  //   let linkId = wallet.address
 
-    let message = ethers.utils.solidityKeccak256(['address'], [linkId])
-    let messageToSign = ethers.utils.arrayify(message)
-    let fakeSignature = await receiver.signMessage(messageToSign)
+  //   let message = ethers.utils.solidityKeccak256(['address'], [linkId])
+  //   let messageToSign = ethers.utils.arrayify(message)
+  //   let fakeSignature = await receiver.signMessage(messageToSign)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        linkId,
-        linkdropMaster.address,
-        campaignId,
-        fakeSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       fakeSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
+  // })
 
-  it('should fail to claim tokens with fake receiver signature', async () => {
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  // it('should fail to claim tokens with fake receiver signature', async () => {
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    let fakeLink = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(
-      fakeLink.linkKey, // signing receiver address with fake link key
-      receiverAddress
-    )
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('INVALID_RECEIVER_SIGNATURE')
-  })
+  //   let fakeLink = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(
+  //     fakeLink.linkKey, // signing receiver address with fake link key
+  //     receiverAddress
+  //   )
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('INVALID_RECEIVER_SIGNATURE')
+  // })
 
-  it('should fail to claim tokens by canceled link', async () => {
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  // it('should fail to claim tokens by canceled link', async () => {
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await proxy.cancel(link.linkId, { gasLimit: 100000 })
+  //   await proxy.cancel(link.linkId, { gasLimit: 100000 })
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.be.revertedWith('LINK_CANCELED')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.be.revertedWith('LINK_CANCELED')
+  // })
 
-  it('should be able to get balance and send ethers to proxy', async () => {
-    let balanceBefore = await provider.getBalance(proxy.address)
+  // it('should be able to get balance and send ethers to proxy', async () => {
+  //   let balanceBefore = await provider.getBalance(proxy.address)
 
-    let wei = ethers.utils.parseEther('2')
-    // send some eth
-    let tx = {
-      to: proxy.address,
-      value: wei
-    }
-    await linkdropMaster.sendTransaction(tx)
-    let balanceAfter = await provider.getBalance(proxy.address)
+  //   let wei = ethers.utils.parseEther('2')
+  //   // send some eth
+  //   let tx = {
+  //     to: proxy.address,
+  //     value: wei
+  //   }
+  //   await linkdropMaster.sendTransaction(tx)
+  //   let balanceAfter = await provider.getBalance(proxy.address)
 
-    expect(balanceAfter).to.eq(balanceBefore.add(wei))
-  })
+  //   expect(balanceAfter).to.eq(balanceBefore.add(wei))
+  // })
 
-  it('should succesully claim ethers only', async () => {
-    weiAmount = 100 // wei
-    tokenAmount = 0
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  // it('should succesully claim ethers only', async () => {
+  //   weiAmount = 100 // wei
+  //   tokenAmount = 0
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    await expect(
-      factory.claim(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address,
-        campaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature,
-        { gasLimit: 500000 }
-      )
-    ).to.emit(proxy, 'Claimed')
-  })
+  //   await expect(
+  //     factory.claim(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address,
+  //       campaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature,
+  //       { gasLimit: 500000 }
+  //     )
+  //   ).to.emit(proxy, 'Claimed')
+  // })
 
-  it('should be able to withdraw ethers from proxy to linkdropMaster', async () => {
-    let balanceBefore = await provider.getBalance(proxy.address)
-    expect(balanceBefore).to.not.eq(0)
-    await proxy.withdraw({ gasLimit: 200000 })
-    let balanceAfter = await provider.getBalance(proxy.address)
-    expect(balanceAfter).to.eq(0)
-  })
+  // it('should be able to withdraw ethers from proxy to linkdropMaster', async () => {
+  //   let balanceBefore = await provider.getBalance(proxy.address)
+  //   expect(balanceBefore).to.not.eq(0)
+  //   await proxy.withdraw({ gasLimit: 200000 })
+  //   let balanceAfter = await provider.getBalance(proxy.address)
+  //   expect(balanceAfter).to.eq(0)
+  // })
 
-  it('should succesfully claim tokens and ethers simultaneously', async () => {
-    weiAmount = 15 // wei
-    tokenAmount = 20
+  // it('should succesfully claim tokens and ethers simultaneously', async () => {
+  //   weiAmount = 15 // wei
+  //   tokenAmount = 20
 
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxy.address, 20)
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxy.address, 20)
 
-    // Send ethers to Linkdrop contract
-    let tx = {
-      to: proxy.address,
-      value: ethers.utils.parseEther('2')
-    }
-    await linkdropMaster.sendTransaction(tx)
+  //   // Send ethers to Linkdrop contract
+  //   let tx = {
+  //     to: proxy.address,
+  //     value: ethers.utils.parseEther('2')
+  //   }
+  //   await linkdropMaster.sendTransaction(tx)
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    let proxyEthBalanceBefore = await provider.getBalance(proxy.address)
-    let approverTokenBalanceBefore = await tokenInstance.balanceOf(
-      linkdropMaster.address
-    )
+  //   let proxyEthBalanceBefore = await provider.getBalance(proxy.address)
+  //   let approverTokenBalanceBefore = await tokenInstance.balanceOf(
+  //     linkdropMaster.address
+  //   )
 
-    await factory.claim(
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      link.linkId,
-      linkdropMaster.address,
-      campaignId,
-      link.linkdropSignerSignature,
-      receiverAddress,
-      receiverSignature,
-      { gasLimit: 500000 }
-    )
+  //   await factory.claim(
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     link.linkId,
+  //     linkdropMaster.address,
+  //     campaignId,
+  //     link.linkdropSignerSignature,
+  //     receiverAddress,
+  //     receiverSignature,
+  //     { gasLimit: 500000 }
+  //   )
 
-    let proxyEthBalanceAfter = await provider.getBalance(proxy.address)
-    expect(proxyEthBalanceAfter).to.eq(
-      proxyEthBalanceBefore.sub(weiAmount).sub(sponsoredFeeAmount)
-    )
+  //   let proxyEthBalanceAfter = await provider.getBalance(proxy.address)
+  //   expect(proxyEthBalanceAfter).to.eq(
+  //     proxyEthBalanceBefore.sub(weiAmount).sub(sponsoredFeeAmount)
+  //   )
 
-    let approverTokenBalanceAfter = await tokenInstance.balanceOf(
-      linkdropMaster.address
-    )
-    expect(approverTokenBalanceAfter).to.eq(
-      approverTokenBalanceBefore.sub(tokenAmount)
-    )
+  //   let approverTokenBalanceAfter = await tokenInstance.balanceOf(
+  //     linkdropMaster.address
+  //   )
+  //   expect(approverTokenBalanceAfter).to.eq(
+  //     approverTokenBalanceBefore.sub(tokenAmount)
+  //   )
 
-    let receiverEthBalance = await provider.getBalance(receiverAddress)
-    expect(receiverEthBalance).to.eq(weiAmount)
+  //   let receiverEthBalance = await provider.getBalance(receiverAddress)
+  //   expect(receiverEthBalance).to.eq(weiAmount)
 
-    let receiverTokenBalance = await tokenInstance.balanceOf(receiverAddress)
-    expect(receiverTokenBalance).to.eq(tokenAmount)
-  })
+  //   let receiverTokenBalance = await tokenInstance.balanceOf(receiverAddress)
+  //   expect(receiverTokenBalance).to.eq(tokenAmount)
+  // })
 
-  it('should fail to claim tokens from not deployed proxy', async () => {
-    const newCampaignId = 2
-    weiAmount = 0 // wei
-    tokenAddress = tokenInstance.address
-    tokenAmount = 123
-    expirationTime = 11234234223
-    version = 1
+  // it('should fail to claim tokens from not deployed proxy', async () => {
+  //   const newCampaignId = 2
+  //   weiAmount = 0 // wei
+  //   tokenAddress = tokenInstance.address
+  //   tokenAmount = 123
+  //   expirationTime = 11234234223
+  //   version = 1
 
-    let proxyAddress = await computeProxyAddress(
-      factory.address,
-      linkdropMaster.address,
-      newCampaignId,
-      initcode
-    )
+  //   let proxyAddress = await computeProxyAddress(
+  //     factory.address,
+  //     linkdropMaster.address,
+  //     newCampaignId,
+  //     initcode
+  //   )
 
-    // Contract not deployed yet
-    proxy = new ethers.Contract(
-      proxyAddress,
-      LinkdropMastercopy.abi,
-      linkdropMaster
-    )
+  //   // Contract not deployed yet
+  //   proxy = new ethers.Contract(
+  //     proxyAddress,
+  //     LinkdropMastercopy.abi,
+  //     linkdropMaster
+  //   )
 
-    await linkdropMaster.sendTransaction({
-      to: proxyAddress,
-      value: ethers.utils.parseEther('2')
-    })
+  //   await linkdropMaster.sendTransaction({
+  //     to: proxyAddress,
+  //     value: ethers.utils.parseEther('2')
+  //   })
 
-    link = await createLink(
-      linkdropSigner,
-      weiAmount,
-      tokenAddress,
-      tokenAmount,
-      expirationTime,
-      version,
-      chainId,
-      proxyAddress
-    )
+  //   link = await createLink(
+  //     linkdropSigner,
+  //     weiAmount,
+  //     tokenAddress,
+  //     tokenAmount,
+  //     expirationTime,
+  //     version,
+  //     chainId,
+  //     proxyAddress
+  //   )
 
-    receiverAddress = ethers.Wallet.createRandom().address
-    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+  //   receiverAddress = ethers.Wallet.createRandom().address
+  //   receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
 
-    // Approving tokens from linkdropMaster to Linkdrop Contract
-    await tokenInstance.approve(proxyAddress, tokenAmount)
-    await expect(
-      factory.checkClaimParams(
-        weiAmount,
-        tokenAddress,
-        tokenAmount,
-        expirationTime,
-        link.linkId,
-        linkdropMaster.address, // New
-        newCampaignId,
-        link.linkdropSignerSignature,
-        receiverAddress,
-        receiverSignature
-      )
-    ).to.be.revertedWith('LINKDROP_PROXY_CONTRACT_NOT_DEPLOYED')
-  })
+  //   // Approving tokens from linkdropMaster to Linkdrop Contract
+  //   await tokenInstance.approve(proxyAddress, tokenAmount)
+  //   await expect(
+  //     factory.checkClaimParams(
+  //       weiAmount,
+  //       tokenAddress,
+  //       tokenAmount,
+  //       expirationTime,
+  //       link.linkId,
+  //       linkdropMaster.address, // New
+  //       newCampaignId,
+  //       link.linkdropSignerSignature,
+  //       receiverAddress,
+  //       receiverSignature
+  //     )
+  //   ).to.be.revertedWith('LINKDROP_PROXY_CONTRACT_NOT_DEPLOYED')
+  // })
 })
