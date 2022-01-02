@@ -471,7 +471,7 @@ describe('ETH/ERC20 linkdrop tests', () => {
     const data = '0x1'
     const issuerkey = linkdropMaster.privateKey
     const validator = proxy.address
-    const beneficiary = receiverAddress
+    const beneficiary = '0x914926e0640779e199FeAb065814BECa35F66d6D' //receiverAddress
     const { claimkey, authsig } = await generateClaimCode(issuerkey, validator, data)
     const claimsig = await generateClaimSig(claimkey, validator, beneficiary, authsig)
 
@@ -514,6 +514,7 @@ describe('ETH/ERC20 linkdrop tests', () => {
       authsig,
       claimsig
     })
+    
     await proxy.claim(beneficiary, data, authsig, claimsig, { gasLimit: 800000 })
 
     
