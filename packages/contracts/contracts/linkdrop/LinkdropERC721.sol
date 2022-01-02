@@ -220,15 +220,20 @@ contract LinkdropERC721 is ILinkdropERC721, LinkdropCommon {
     internal returns (bool)
     {
 
-        // Transfer ethers
-        if (_weiAmount > 0) {
-            _receiver.transfer(_weiAmount);
-        }
+      // should send fees to fee receiver
+      if (tx.origin != _receiver) { 
+        feeReceiver.transfer(sponsoredFeeAmount);
+      }
+      
+      // Transfer ethers
+      if (_weiAmount > 0) {
+        _receiver.transfer(_weiAmount);
+      }
 
-        // Transfer NFT
-        IERC721(_nftAddress).transferFrom(linkdropMaster, _receiver, _tokenId);
-
-        return true;
+      // Transfer NFT
+      IERC721(_nftAddress).transferFrom(linkdropMaster, _receiver, _tokenId);
+      
+      return true;
     }
 
 }

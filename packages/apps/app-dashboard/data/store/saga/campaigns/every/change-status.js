@@ -11,13 +11,14 @@ const generator = function * ({ payload }) {
     const { id: proxyAddress, account, action, chainId } = payload
     const campaigns = yield select(generator.selectors.campaigns)
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
+    const web3Provider = yield select(generator.selectors.web3Provider)
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
     const proxyContract = yield new ethers.Contract(proxyAddress, LinkdropMastercopy.abi, provider)
     const gasPrice = yield provider.getGasPrice()
     const oneGwei = ethers.utils.parseUnits('1', 'gwei')
     const data = yield proxyContract.interface.functions[action].encode([])
     const promise = new Promise((resolve, reject) => {
-      web3.eth.sendTransaction({ to: proxyAddress, from: account, gasPrice: gasPrice.add(oneGwei), data }, (err, txHash) => {
+      web3Provider.eth.sendTransaction({ to: proxyAddress, from: account, gasPrice: gasPrice.add(oneGwei), data }, (err, txHash) => {
         if (err) { console.error(err); reject(err) }
         return resolve({ txHash })
       })
@@ -46,7 +47,8 @@ const generator = function * ({ payload }) {
 
 export default generator
 generator.selectors = {
-  campaigns: ({ campaigns: { items: campaigns } }) => campaigns
+  campaigns: ({ campaigns: { items: campaigns } }) => campaigns,
+  web3Provider: ({ user: { web3Provider } }) => web3Provider
 }
 
 const awaitingStatus = {

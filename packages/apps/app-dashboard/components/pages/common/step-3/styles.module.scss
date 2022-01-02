@@ -20,9 +20,24 @@
   margin: 0 0 40px;
 }
 
+.dataTitle {
+  font-weight: normal;
+  font-size: 16px;
+  margin: 0 0 10px;
+  font-family: 'Inter-Bold';
+}
+.dataContent {
+  font-family: 'Inter-Regular';
+  margin-bottom: 6px;
+}
+
 .text {
   font-size: 16px;
   margin-bottom: 20px;
+}
+
+.checkbox {
+  margin-bottom: 10px;;
 }
 
 .main {

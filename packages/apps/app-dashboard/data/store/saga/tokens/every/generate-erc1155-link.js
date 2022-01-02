@@ -8,7 +8,6 @@ const generator = function * ({ payload }) {
   try {
     yield put({ type: 'USER.SET_LOADING', payload: { loading: true } })
     const { tokenId } = payload
-    const chainId = yield select(generator.selectors.chainId)
     const ethBalance = yield select(generator.selectors.ethAmount)
     const weiAmount = utils.parseEther(convertFromExponents(ethBalance || 0))
     const sdk = yield select(generator.selectors.sdk)
@@ -16,8 +15,7 @@ const generator = function * ({ payload }) {
     const defaultWallet = yield select(generator.selectors.defaultWallet)
     const privateKey = yield select(generator.selectors.privateKey)
     const tokenAddress = yield select(generator.selectors.tokenAddress)
-
-
+    const sponsored = yield select(generator.selectors.sponsored)
     const link = yield sdk.generateLinkERC1155({
       weiAmount: ethBalance ? weiAmount : 0,
       nftAddress: tokenAddress,
@@ -31,7 +29,7 @@ const generator = function * ({ payload }) {
 
     yield delay(10)
     const links = yield select(generator.selectors.links)
-    const linksUpdated = links.concat(Number(chainId) === 1 ? `${link.url}&manual=true` : link.url)
+    const linksUpdated = links.concat(!sponsored ? `${link.url}&manual=true` : link.url)
     yield put({ type: 'CAMPAIGNS.SET_LINKS', payload: { links: linksUpdated } })
     yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
   } catch (e) {
@@ -50,4 +48,5 @@ generator.selectors = {
   sdk: ({ user: { sdk } }) => sdk,
   chainId: ({ user: { chainId } }) => chainId,
   campaignId: ({ campaigns: { id } }) => id,
+  sponsored: ({ campaigns: { sponsored } }) => sponsored
 }

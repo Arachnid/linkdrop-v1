@@ -217,30 +217,32 @@ constructor (props) {
         return <InitialPage
           {...commonData}
           onClick={_ => {
-            if (account) {
-              // if wallet account was found in web3 context, then go to step 4 and claim data
-                if (nftAddress && tokenId) {
-                  if (tokenAmount) {
-                    if (manual) {
-                      return this.actions().tokens.claimTokensERC1155Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
-                    }
-                    return this.actions().tokens.claimTokensERC1155({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
-                  }
-                  if (manual) {
-                    return this.actions().tokens.claimTokensERC721Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
-                  }
-                  return this.actions().tokens.claimTokensERC721({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
-                }
-
-                if (manual) {
-                  return this.actions().tokens.claimTokensERC20Manual({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })
-                }
-
-                return this.actions().tokens.claimTokensERC20({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })  
-
+            if (!account) {
+              return this.actions().user.setStep({ step: 2 })
             }
-            // if wallet was not found in web3 context, then go to step 2 with wallet select page and instructions
-            this.actions().user.setStep({ step: 2 })
+            if (Number(chainId) !== Number(connectorChainId) && Object.keys(chains).includes(String(chainId))) {
+              return this.actions().user.setStep({ step: 6 })
+            }
+              // if wallet account was found in web3 context, then go to step 4 and claim data
+            if (nftAddress && tokenId) {
+              if (tokenAmount) {
+                if (manual) {
+                  return this.actions().tokens.claimTokensERC1155Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
+                }
+                return this.actions().tokens.claimTokensERC1155({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature, tokenAmount })
+              }
+              if (manual) {
+                return this.actions().tokens.claimTokensERC721Manual({ linkdropMasterAddress, wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
+              }
+              return this.actions().tokens.claimTokensERC721({ wallet: account, campaignId, nftAddress, tokenId, weiAmount, expirationTime, linkKey, linkdropSignerSignature })
+            }
+
+            if (manual) {
+              return this.actions().tokens.claimTokensERC20Manual({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })
+            }
+
+            return this.actions().tokens.claimTokensERC20({ campaignId, wallet: account, tokenAddress, tokenAmount, weiAmount, expirationTime, linkKey, linkdropMasterAddress, linkdropSignerSignature })  
+
           }}
         />
       case 2:
@@ -260,14 +262,6 @@ constructor (props) {
           }}
         />
       case 4:
-        // claiming is in process
-        if (Number(chainId) !== Number(connectorChainId) && Object.keys(chains).includes(String(chainId))) {
-          return <ConnectToChainPage
-            chainToConnectTo={chainId}
-            wallet={account}
-            context={context}
-          /> 
-        }
         return <ClaimingProcessPage
           {...commonData}
         />
@@ -276,6 +270,12 @@ constructor (props) {
         return <ClaimingFinishedPage
           {...commonData}
         />
+      case 6:
+        return <ConnectToChainPage
+          chainToConnectTo={chainId}
+          wallet={account}
+          context={context}
+        /> 
       default:
         // зloading
         return <Loading />

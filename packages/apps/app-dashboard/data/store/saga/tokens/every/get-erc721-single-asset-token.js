@@ -22,47 +22,47 @@ const generator = function * ({ payload }) {
     const isOwner = yield tokenContract.ownerOf(tokenId)
     if (isOwner !== userAddress) {
       yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
-      return alert('Token not found')
+      return alert(`Token ${tokenId} was not found on address ${userAddress}`)
     }
     const newAsset = {
       ...currentAsset,
       ids: [...currentAsset.ids, tokenId]
     }
 
-    try {
-      if (tokenContract.tokenURI) {
-        const metadataURL = yield tokenContract.tokenURI(tokenId)
-        if (metadataURL) {
-          const data = yield call(getERC721TokenData, { erc721URL: metadataURL })
-          if (data) {
-            newAsset.images = {
-              ...newAsset.images,
-              [tokenId]: data.image
-            }
-            
+    yield put({ type: 'TOKENS.SET_ERC721_SINGLE_ASSET', payload: { asset: newAsset } })
 
-            newAsset.names = {
-              ...newAsset.names,
-              [tokenId]: data.name
-            }
-          }
-        }
-      }
-      yield put({ type: 'TOKENS.SET_ERC721_SINGLE_ASSET', payload: { asset: newAsset } })
-    } catch (e) {
-      console.error(e)
-      currentAsset.images = {
-        ...currentAsset.images,
-        [tokenId]: ''
-      }
+    // try {
+    //   if (tokenContract.tokenURI) {
+    //     const metadataURL = yield tokenContract.tokenURI(tokenId)
+    //     console.log({ metadataURL })
+    //     if (metadataURL) {
+    //       const data = yield call(getERC721TokenData, { erc721URL: metadataURL })
+    //       if (data) {
+    //         newAsset.images = {
+    //           ...newAsset.images,
+    //           [tokenId]: data.image
+    //         }
+    //         newAsset.names = {
+    //           ...newAsset.names,
+    //           [tokenId]: data.name
+    //         }
+    //       }
+    //     }
+    //   }
+    //   yield put({ type: 'TOKENS.SET_ERC721_SINGLE_ASSET', payload: { asset: newAsset } })
+    // } catch (e) {
+    //   console.error(e)
+    //   currentAsset.images = {
+    //     ...currentAsset.images,
+    //     [tokenId]: ''
+    //   }
 
-      currentAsset.names = {
-        ...currentAsset.names,
-        [tokenId]: ''
-      }
-      
-      yield put({ type: 'TOKENS.SET_ERC721_SINGLE_ASSET', payload: { asset: newAsset } })
-    }
+    //   currentAsset.names = {
+    //     ...currentAsset.names,
+    //     [tokenId]: ''
+    //   }
+    //   yield put({ type: 'TOKENS.SET_ERC721_SINGLE_ASSET', payload: { asset: newAsset } })
+    // }
 
     yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
   } catch (e) {

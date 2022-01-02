@@ -2,15 +2,12 @@ import React from 'react'
 import { actions, translate } from 'decorators'
 import styles from './styles.module'
 import classNames from 'classnames'
-import { getHashVariables, convertFromExponents } from '@linkdrop/commons'
+import { getHashVariables } from '@linkdrop/commons'
 import {
   Select,
   PageHeader,
-  Input,
   PageLoader,
-  NFTToken,
-  Note,
-  Button
+  NFTToken
 } from 'components/common'
 import {
   TokenAddressInput,
@@ -18,17 +15,14 @@ import {
   NextButton,
   AddEthField,
   EthTexts,
-  TokenIdInput,
-  
+  TokenIdInput
 } from 'components/pages/common'
 
-import config from 'config-dashboard'
 import AllTokensControl from './all-tokens-control'
-import Immutable from 'immutable'
 import { defineDefaultSymbol } from 'helpers'
 import wallets from 'wallets'
 
-const WALLET_IDS = ['walletconnect', 'metamask', 'coinbase', 'imtoken', 'fortmatic', 'portis', 'opera']
+const WALLET_IDS = ['metamask', 'walletconnect', 'coinbase', 'imtoken', 'opera']
 
 @actions(({
   user: {
@@ -152,7 +146,6 @@ class Step1 extends React.Component {
             tokenSymbol: erc1155SingleAsset && erc1155SingleAsset.names && erc1155SingleAsset.names[currentIds[0]] || erc1155SingleAsset && erc1155SingleAsset.symbol || '',
             addEth
           })}
-          {Number(chainId) === 1 && <Note aside text={this.t('texts.gasPriceAttention')} />}
         </div>
       </div>
 
@@ -283,8 +276,6 @@ class Step1 extends React.Component {
       <p className={classNames(styles.text, styles.textMargin15)}>{linksAmount} {tokenSymbol}</p>
       <EthTexts ethAmount={ethAmount} linksAmount={linksAmount} />
       <LinksContent tokenAmount={tokenAmount} tokenSymbol={tokenSymbol} ethAmount={ethAmount} tokenType='erc1155' />
-      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice * linksAmount) }) }} />
-      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice) }) }} />
     </div>
   }
 

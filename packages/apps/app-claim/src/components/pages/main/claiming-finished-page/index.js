@@ -36,7 +36,7 @@ class ClaimingFinishedPage extends React.Component {
   }
 
   render () {
-    const { chainId, dappId, subscribe, tokenId, nftAddress } = getHashVariables()
+    const { chainId, dappId, subscribe, tokenId, nftAddress, src = 'opensea' } = getHashVariables()
     const { formShow, email, iconType } = this.state
     const { transactionId, icon, amount, wallet, symbol, transactionStatus, loading, sendDataStatus } = this.props
     return <div className={classNames(commonStyles.container, styles.container, {
@@ -46,11 +46,10 @@ class ClaimingFinishedPage extends React.Component {
       {this.renderTitles({ transactionStatus, amount, symbol, wallet })}
       {this.renderEtherscanUrl({ transactionId, chainId })}
       {this.renderDappButton({ dappId, transactionId, transactionStatus })}
-      {this.renderOpenseaButton({ tokenId, nftAddress, chainId })}
+      {this.renderWatchTokenButton({ tokenId, nftAddress, chainId, src })}
       {this.renderSubscribeForm({ subscribe, wallet, email, loading, sendDataStatus, transactionId })}
     </div>
   }
-
 
   renderIcon ({ transactionStatus, icon, symbol, nftAddress, iconType }) {
     if (transactionStatus === 'failed') {
@@ -83,9 +82,6 @@ class ClaimingFinishedPage extends React.Component {
     />
   }
 
-  // src={iconType === 'defaut' ? icon : <Icons.Star />}
-
-
   renderTitles ({ transactionStatus, amount, symbol, wallet }) {
     if (transactionStatus === 'failed') {
       return <div
@@ -114,8 +110,7 @@ class ClaimingFinishedPage extends React.Component {
           token
         })
       }}
-    />
-    
+    /> 
   }
 
   renderEtherscanUrl ({ transactionId, chainId }) {
@@ -153,20 +148,40 @@ class ClaimingFinishedPage extends React.Component {
     </RoundedButton>
   }
 
-  renderOpenseaButton ({ tokenId, nftAddress, chainId }) {
+  renderWatchTokenButton ({ tokenId, nftAddress, chainId, src = 'opensea' }) {
     if (!tokenId || !nftAddress) { return null }
-    const openseaUrl =  this.defineOpenseaURL({ chainId, tokenId, nftAddress })
+    const watchTokenUrl = this.defineWatchURL({ chainId, tokenId, nftAddress, src })
+    const title = this.defineWatchTitle({ src })
     return <RoundedButton
       className={styles.button}
       target='_blank'
-      href={openseaUrl}
+      href={watchTokenUrl}
     >
-      View token on OpenSea
+      {title}
     </RoundedButton>
   }
 
-  defineOpenseaURL ({ chainId, tokenId, nftAddress }) {
+  defineWatchTitle ({ src }) {
+    switch (src) {
+      case 'opensea':
+        return 'View token on OpenSea'
+      case 'rarible':
+        return 'View token on Rarible'
+      default:
+        return 'View token'
+    }
+  }
+
+  defineWatchURL ({ chainId, tokenId, nftAddress, src = 'opensea' }) {
     const networkName = defineNetworkName({ chainId })
+    if (src === 'opensea') {
+      return this.defineOpenseaURL({ tokenId, nftAddress, networkName })
+    } else if (src === 'rarible') {
+      return this.defineRaribleURL({ tokenId, nftAddress, networkName })
+    }
+  }
+
+  defineOpenseaURL ({ tokenId, nftAddress, networkName }) {
     if (networkName === 'mainnet') {
       return `https://opensea.io/assets/${nftAddress}/${tokenId}`
     }
@@ -174,7 +189,16 @@ class ClaimingFinishedPage extends React.Component {
       return `https://opensea.io/assets/matic/${nftAddress}/${tokenId}`
     }
     return `https://testnets.opensea.io/assets/${networkName}/${nftAddress}/${tokenId}`
-   }
+  }
+
+  defineRaribleURL ({ tokenId, nftAddress, networkName }) {
+    if (networkName === 'mainnet') {
+      return `https://rarible.com/token/${nftAddress}:${tokenId}`
+    } else if (networkName === 'rinkeby') {
+      return `https://rinkeby.rarible.com/token/${nftAddress}:${tokenId}`
+    }
+    return null
+  }
 
   renderSubscribeForm ({ subscribe, email, loading, sendDataStatus, transactionId, wallet }) {
     if (subscribe && subscribe === 'false') { return null }

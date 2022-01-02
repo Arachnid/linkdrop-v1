@@ -1,6 +1,6 @@
 {
   "name": "@linkdrop/server",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "main": "server.js",
   "author": "Linkdrop <linkdrop.org>",
   "private": true,
@@ -10,14 +10,14 @@
     "dev": "nodemon --exec npx babel-node server.js",
     "deploy-rinkeby": "cd deploy && npx shipit rinkeby deploy",
     "deploy-rinkeby-erc1155": "cd deploy && npx shipit rinkeby1155 deploy",
-    "deploy-mainnet-erc1155": "cd deploy && npx shipit mainnet1155 deploy",    
+    "deploy-mainnet-erc1155": "cd deploy && npx shipit mainnet1155 deploy",
     "deploy-ropsten": "cd deploy && npx shipit ropsten deploy",
     "deploy-mainnet": "cd deploy && npx shipit mainnet deploy",
-    "deploy-kovan": "cd deploy && npx shipit kovan deploy",    
+    "deploy-kovan": "cd deploy && npx shipit kovan deploy",
     "deploy-xdai": "cd deploy && npx shipit xdai deploy",
     "deploy-bsc-testnet": "cd deploy && npx shipit bsc-testnet deploy",
     "deploy-bsc": "cd deploy && npx shipit bsc deploy",
-    "deploy-matic": "cd deploy && npx shipit matic deploy"    
+    "deploy-matic": "cd deploy && npx shipit matic deploy"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -34,7 +34,7 @@
     "extends": "../babel.config.js"
   },
   "dependencies": {
-    "@linkdrop/sdk": "^1.1.6",
+    "@linkdrop/sdk": "^1.2.0",
     "bignumber.js": "^9.0.0",
     "cli-table": "^0.3.1",
     "cors": "^2.8.5",

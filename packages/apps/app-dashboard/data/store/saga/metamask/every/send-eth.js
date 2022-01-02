@@ -10,15 +10,15 @@ const generator = function * ({ payload }) {
     yield put({ type: 'METAMASK.SET_STATUS', payload: { status: 'initial' } })
     yield put({ type: 'USER.SET_LOADING', payload: { loading: true } })
     const web3Provider = yield select(generator.selectors.web3Provider)
-    const { ethAmount, account: fromWallet, chainId } = payload
+    const { ethAmount, account: fromWallet, chainId, sponsored } = payload
+    console.log({ sponsoredMetamask: sponsored })
     const newWallet = ethers.Wallet.createRandom()
     const { address: wallet, privateKey } = newWallet
     const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk, jsonRpcUrlXdai })
     const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
     const gasPrice = yield provider.getGasPrice()
     const oneGwei = ethers.utils.parseUnits('1', 'gwei')
-    const ethValueWei = utils.parseEther(ethAmount)
-    console.log({ ethValueWei })
+    const ethValueWei = utils.parseEther(String(ethAmount))
     const campaignId = yield select(generator.selectors.campaignId)
     const factoryContract = yield new ethers.Contract(factory, LinkdropFactory.abi, provider)
     const isDeployed = yield factoryContract.isDeployed(fromWallet, campaignId)
@@ -44,6 +44,7 @@ const generator = function * ({ payload }) {
       yield put({ type: 'USER.SET_TX_HASH', payload: { txHash } })
       yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
       yield put({ type: 'USER.SET_PRIVATE_KEY', payload: { privateKey } })
+      yield put({ type: 'CAMPAIGNS.SET_SPONSORED', payload: { sponsored } })
       yield put({ type: 'METAMASK.SET_STATUS', payload: { status: 'finished' } })
     }
   } catch (e) {

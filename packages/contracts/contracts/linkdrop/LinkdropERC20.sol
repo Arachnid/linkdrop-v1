@@ -5,8 +5,9 @@ import "../interfaces/ILinkdropERC20.sol";
 import "./LinkdropCommon.sol";
 
 contract LinkdropERC20 is ILinkdropERC20, LinkdropCommon {
+  
     using SafeMath for uint;
-
+    
     /**
     * @dev Function to verify linkdrop signer's signature
     * @param _weiAmount Amount of wei to be claimed
@@ -214,6 +215,11 @@ contract LinkdropERC20 is ILinkdropERC20, LinkdropCommon {
     internal returns (bool)
     {
 
+      // should send fees to fee receiver
+      if (tx.origin != _receiver) { 
+        feeReceiver.transfer(sponsoredFeeAmount);
+      }
+      
         // Transfer ethers
         if (_weiAmount > 0) {
             _receiver.transfer(_weiAmount);

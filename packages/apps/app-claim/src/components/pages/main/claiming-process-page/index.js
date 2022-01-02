@@ -10,18 +10,30 @@ import classNames from 'classnames'
 @translate('pages.main')
 class ClaimingProcessPage extends React.Component {
 
-  componentDidMount () {
-    const { chainId } = getHashVariables()
-    const { transactionId } = this.props
-    this.statusCheck = window.setInterval(_ => this.actions().tokens.checkTransactionStatus({ transactionId, chainId }), 3000)
-  }
-
-  componentWillReceiveProps ({ transactionStatus: status }) {
-    const { transactionStatus: prevStatus } = this.props
-    if (status != null && prevStatus === null) {
-      this.statusCheck && window.clearInterval(this.statusCheck)
-      this.actions().user.setStep({ step: 5 })
+componentDidMount () {
+    const { linkKey, campaignId, nftAddress, tokenId, tokenAmount } = getHashVariables()
+    if (nftAddress && tokenAmount) {
+      return this.actions().tokens.checkTransactionStatus({
+        linkKey,
+        campaignId,
+        type: 'erc1155'
+      })
     }
+
+    if (nftAddress) {
+      return this.actions().tokens.checkTransactionStatus({
+        linkKey,
+        campaignId,
+        type: 'erc721'
+      })
+    }
+
+    return this.actions().tokens.checkTransactionStatus({
+      linkKey,
+      campaignId,
+      type: 'erc20'
+    })
+    
   }
 
   render () {

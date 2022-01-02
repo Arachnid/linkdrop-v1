@@ -169,18 +169,6 @@ class Step2 extends React.Component {
                   {totalLinks}
                 </div>
               </div>
-              <div className={styles.data}>
-                <h3 className={styles.dataTitle}>
-                  {this.t('titles.serviceFeeTitle')}
-                </h3>
-                <div className={styles.dataContent}>
-                  {`${convertFromExponents(totalLinks * config.linkPrice)} ${this.defaultSymbol}`}
-                </div>
-                <div className={styles.extraDataContent}>
-                  {this.t('titles.ethPerLink', { symbol: this.defaultSymbol, eth: convertFromExponents(config.linkPrice) })}
-                </div>
-
-              </div>
             </div>
 
             <div>
@@ -193,18 +181,9 @@ class Step2 extends React.Component {
                 </div>
 
               </div>
-              <EthAmountData />
             </div>
           </div>
-          <div className={styles.serviceFee}>{this.t('texts._18')}</div>
-          <ApproveSummary
-            tokenType={tokenType}
-            linksAmount={totalLinks}
-            serviceFee={config.linkPrice}
-            ethAmount={ethAmount}
-            tokenAmount={tokenAmount}
-            tokenSymbol={tokenSymbol}
-          />
+          <div className={styles.note}>Give Linkdrop contracts permission to transfer tokens from your account to receiver</div>
           <NextButton
             tokenType={tokenType}
             tokenAmount={tokenAmount}

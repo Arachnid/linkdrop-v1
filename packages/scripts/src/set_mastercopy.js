@@ -42,7 +42,8 @@ export const set = async () => {
     )
 
     tx = await factory.setMasterCopy(MASTERCOPY_ADDRESS, {
-      gasLimit: 1200000
+      gasLimit: 1200000,
+      gasPrice: ethers.utils.parseUnits('100', 'gwei')      
     })
   } catch (err) {
     spinner.fail(term.bold.red.str('Failed to set master copy address'))

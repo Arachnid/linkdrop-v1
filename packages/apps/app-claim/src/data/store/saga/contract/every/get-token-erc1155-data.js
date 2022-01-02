@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import ERC1155Mock from '@linkdrop/contracts/build/ERC1155Mock.json'
 import { defineJsonRpcUrl } from '@linkdrop/commons'
 import { infuraPk, ipfsGatewayUrl } from 'app.config.js'
+import Bloodline from './bloodline.jpg'
 
 const getContractData = function * ({ tokenId, nftContract }) {
   try {
@@ -16,6 +17,7 @@ const getContractData = function * ({ tokenId, nftContract }) {
 }
 
 const getNameAndImageForERC1155 = function * ({ metadataURL, tokenId }) {
+  console.log({ metadataURL, tokenId })
   try {
     let actualUrl = metadataURL.includes('ipfs://ipfs/') ? metadataURL.replace('ipfs://ipfs/', ipfsGatewayUrl) : metadataURL
     actualUrl = actualUrl.includes('ipfs://') ? actualUrl.replace('ipfs://', ipfsGatewayUrl) : actualUrl
@@ -39,7 +41,6 @@ const getNameAndImageForERC1155 = function * ({ metadataURL, tokenId }) {
     console.log({ err: e })
     return { name: 'ERC1155', image: "" }
   }
-  
 }
 
 const generator = function * ({ payload }) {
@@ -65,7 +66,10 @@ const generator = function * ({ payload }) {
     if (nftAddress.toLowerCase() === '0xeaba6b46cab0e21085b2d4355e32cb90360c4f2b') { 
       image = 'https://lh3.googleusercontent.com/fkPWX_hRy1aKkWDzAqxUVhDYpMbPLEvjBleqD49xuRPorqBAC0Hlll1U30b22S6exD9LsaqaNivdzOk4Q5GfBBBL7UN-Dhf3wI6odt4=s0'
       name = 'OhanaDAI'
-    } else {  
+    } else if (nftAddress.toLowerCase() === '0x2953399124f0cbb46d2cbacd8a89cf0599974963' && tokenId === '71215136226271209265269268028306761627914643830163423540258026250743287119972') { 
+      image = Bloodline
+      name = 'Your NFT entry ticket'
+    } else {
       const res = yield getNameAndImageForERC1155({ tokenId, metadataURL })
       name = res.name
       image = res.image
@@ -84,11 +88,7 @@ const generator = function * ({ payload }) {
 
     yield put({ type: 'USER.SET_STEP', payload: { step: 1 } })
   } catch (e) {
-    console.error({e})
-    const { nftAddress, chainId, name: linkFromName } = payload
-    const actualJsonRpcUrl = defineJsonRpcUrl({ chainId, infuraPk })
-    const provider = yield new ethers.providers.JsonRpcProvider(actualJsonRpcUrl)
-    const nftContract = yield new ethers.Contract(nftAddress, ERC1155Mock.abi, provider)
+    console.error({ e })
     yield put({ type: 'CONTRACT.SET_SYMBOL', payload: { symbol: 'ERC1155' } })
     yield put({ type: 'CONTRACT.SET_ICON', payload: { icon: '' } })
     yield put({ type: 'CONTRACT.SET_AMOUNT', payload: { amount: undefined } })

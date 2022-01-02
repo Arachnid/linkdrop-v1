@@ -2,7 +2,6 @@ import { put, select } from 'redux-saga/effects'
 import { delay } from 'redux-saga'
 import { ethers, utils } from 'ethers'
 import configs from 'config-dashboard'
-import wallets from 'wallets'
 import { convertFromExponents } from '@linkdrop/commons'
 
 const generator = function * ({ payload }) {
@@ -15,8 +14,7 @@ const generator = function * ({ payload }) {
     const privateKey = yield select(generator.selectors.privateKey)
     const defaultWallet = yield select(generator.selectors.defaultWallet)
     const ethersContractZeroAddress = ethers.constants.AddressZero
-    const chainId = yield select(generator.selectors.chainId)    
-
+    const sponsored = yield select(generator.selectors.sponsored)
     const link = yield sdk.generateLink({
       signingKeyOrWallet: privateKey,
       weiAmount,
@@ -29,7 +27,7 @@ const generator = function * ({ payload }) {
 
     yield delay(10)
     const links = yield select(generator.selectors.links)
-    const linksUpdated = links.concat(Number(chainId) === 1 ? `${link.url}&manual=true` : link.url)
+    const linksUpdated = links.concat(!sponsored ? `${link.url}&manual=true` : link.url)
     yield put({ type: 'CAMPAIGNS.SET_LINKS', payload: { links: linksUpdated } })
     yield put({ type: 'USER.SET_LOADING', payload: { loading: false } })
   } catch (e) {
@@ -47,5 +45,6 @@ generator.selectors = {
   tokenType: ({ tokens: { tokenType } }) => tokenType,
   sdk: ({ user: { sdk } }) => sdk,
   campaignId: ({ campaigns: { id } }) => id,
-  chainId: ({ user: { chainId } }) => chainId
+  chainId: ({ user: { chainId } }) => chainId,
+  sponsored: ({ campaigns: { sponsored } }) => sponsored
 }

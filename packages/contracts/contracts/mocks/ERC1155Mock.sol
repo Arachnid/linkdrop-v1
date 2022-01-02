@@ -11,7 +11,7 @@ contract ERC1155Mock is ERC1155 {
     // Mint 10 NFTs to deployer
   constructor() public ERC1155("http://test-string.linkdrop.io") {
         for (uint i = 0; i < 10; i++) {
-          super._mint(msg.sender, i, 1, new bytes(0));
+          super._mint(msg.sender, i, 100, new bytes(0));
         }
 
         /* for (uint i = 11; i < 15; i++) { */

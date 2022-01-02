@@ -14,7 +14,7 @@ class TokenIdInput extends React.Component {
   }
   render () {
     const { tokenId } = this.state
-    const { addToken, setField, className, tokenIds, title = this.t('titles.tokenIdPlaceholder') } = this.props
+    const { addToken, className, tokenIds, title = this.t('titles.tokenIdPlaceholder'), note } = this.props
     return <div className={classnames(styles.tokenId, className)}>
       {tokenIds && tokenIds.length > 0 && <div
         className={styles.tokenIdsAdded}
@@ -47,6 +47,7 @@ class TokenIdInput extends React.Component {
           {this.t('buttons.add')}
         </Button>
       </div>
+      {note && <div className={styles.note}>{note}</div>}
     </div>
   }
 }

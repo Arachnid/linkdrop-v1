@@ -29,8 +29,8 @@ class Tokens {
     this.actions.dispatch({ type: '*TOKENS.CLAIM_TOKENS_ERC1155_MANUAL', payload: { wallet, campaignId, nftAddress, tokenId, weiAmount, linkdropMasterAddress, expirationTime, linkKey, linkdropSignerSignature, tokenAmount } })
   }
 
-  checkTransactionStatus ({ transactionId, chainId }) {
-    this.actions.dispatch({ type: '*TOKENS.CHECK_TRANSACTION_STATUS', payload: { transactionId, chainId } })
+  checkTransactionStatus ({ linkKey, campaignId, type }) {
+    this.actions.dispatch({ type: '*TOKENS.CHECK_TRANSACTION_STATUS', payload: { linkKey, campaignId, type } })
   }
 
   checkIfClaimed ({ linkKey, chainId, linkdropMasterAddress, campaignId }) {

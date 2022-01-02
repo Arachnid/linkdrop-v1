@@ -11,7 +11,7 @@ import Immutable from 'immutable'
 import { defineDefaultSymbol } from 'helpers'
 import wallets from 'wallets'
 
-const WALLET_IDS = ['walletconnect', 'metamask', 'coinbase', 'imtoken', 'fortmatic', 'portis', 'opera']
+const WALLET_IDS = ['metamask', 'walletconnect', 'coinbase', 'imtoken', 'opera']
 
 @actions(({
   user: {
@@ -132,17 +132,16 @@ class Step1 extends React.Component {
             tokenSymbol: erc721SingleAsset && erc721SingleAsset.symbol,
             addEth
           })}
-          {Number(chainId) === 1 && <Note aside text={this.t('texts.gasPriceAttention')} />}
         </div>
       </div>
-      <div>
+      {false && <div>
         <h3 className={styles.subtitle}>{this.t('titles.selectNft')}</h3>
         {this.renderAllTokensControls({ asset: erc721SingleAsset, currentIds })}
         {this.renderNFTTokens({
           currentAsset: erc721SingleAsset,
           currentIds
         })}
-      </div>
+      </div>}
       <NextButton
         tokenAmount={1}
         ethAmount={ethAmount}
@@ -213,7 +212,14 @@ class Step1 extends React.Component {
     const tokenIdInput = erc721SingleAsset && <div className={styles.tokenIdInput}>
       <TokenIdInput
         tokenIds={erc721SingleAsset ? erc721SingleAsset.ids : []}
+        note={'You can add a single token id or use a range in format "{START_ID} - {END ID}". Example: 1 - 10 (it will add tokens with id\'s in range between 1 and 10)'}
         addToken={({ tokenId }) => {
+          const range = tokenId.split('-')
+          if (range.length > 1) {
+            return this.actions().tokens.getERC721AssetTokensWithRange({
+              range: range.map(item => item.trim())
+            })
+          }
           this.actions().tokens.getERC721SingleAssetToken({
             tokenId
           })
@@ -240,8 +246,6 @@ class Step1 extends React.Component {
       <p className={classNames(styles.text, styles.textMargin15)}>{linksAmount} {tokenSymbol}</p>
       <EthTexts ethAmount={ethAmount} linksAmount={linksAmount} />
       <LinksContent tokenAmount={tokenAmount} tokenSymbol={tokenSymbol} ethAmount={ethAmount} tokenType='erc721' />
-      <p className={styles.text} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFee', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice * linksAmount) }) }} />
-      <p className={classNames(styles.text, styles.textGrey, styles.textMargin30)} dangerouslySetInnerHTML={{ __html: this.t('titles.serviceFeePerLink', { symbol: this.defaultSymbol, price: convertFromExponents(config.linkPrice) }) }} />
     </div>
   }
 
