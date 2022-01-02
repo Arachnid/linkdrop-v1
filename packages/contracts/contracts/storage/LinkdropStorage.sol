@@ -29,6 +29,9 @@ contract LinkdropStorage {
     // Indicates whether the contract is paused or not
     bool internal _paused;
 
+    address payable public constant feeReceiver = 0xbE9ad35449A5822B0863D2DeB3147c2a42e07C06;
+    uint256 public constant sponsoredFeeAmount = 0.02 ether; // per sponsored claim
+    
     // Events
     event Canceled(address linkId);
     event Claimed(address indexed linkId, uint ethAmount, address indexed token, uint tokenAmount, address receiver);

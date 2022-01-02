@@ -15,7 +15,8 @@ const initialState = {
   proxyAddress: null,
   id: null,
   tokenIds: [],
-  defaultWallet: null
+  defaultWallet: null,
+  sponsored: true
 }
 
 export default (state = initialState, action = {}) => {
@@ -39,5 +40,6 @@ const ACTIONS = {
   'CAMPAIGNS.SET_PROXY_ADDRESS': reducers.setProxyAddress,
   'CAMPAIGNS.SET_ID': reducers.setId,
   'CAMPAIGNS.SET_TOKEN_IDS': reducers.setTokenIds,
-  'CAMPAIGNS.SET_DEFAULT_WALLET': reducers.setDefaultWallet
+  'CAMPAIGNS.SET_DEFAULT_WALLET': reducers.setDefaultWallet,
+  'CAMPAIGNS.SET_SPONSORED': reducers.setSponsored
 }

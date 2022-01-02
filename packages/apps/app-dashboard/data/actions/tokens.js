@@ -51,14 +51,8 @@ class Tokens {
     this.actions.dispatch({ type: '*TOKENS.GENERATE_ETH_LINK', payload: { chainId, currentAddress } })
   }
 
-
-
   setTokenERC20Data ({ tokenAddress }) {
     this.actions.dispatch({ type: '*TOKENS.SET_ERC20_DATA', payload: { tokenAddress } })
-  }
-
-  setTokenERC721Data ({ address }) {
-    this.actions.dispatch({ type: '*TOKENS.SET_ERC721_DATA', payload: { address } })
   }
 
   setTokenERC721Data ({ address }) {
@@ -71,6 +65,10 @@ class Tokens {
 
   getERC721SingleAssetToken ({ tokenId }) {
     this.actions.dispatch({ type: '*TOKENS.GET_ERC721_SINGLE_ASSET_TOKEN', payload: { tokenId } })
+  }
+
+  getERC721AssetTokensWithRange ({ range }) {
+    this.actions.dispatch({ type: '*TOKENS.GET_ERC721_ASSET_TOKENS_WITH_RANGE', payload: { range } })
   }
 
   getERC1155SingleAsset ({ address }) {

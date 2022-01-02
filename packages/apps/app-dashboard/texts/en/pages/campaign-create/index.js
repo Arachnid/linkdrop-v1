@@ -45,7 +45,7 @@ export default {
 
     // step4
     generatingLinks: 'Generating links…',
-    loadingProcess: 'It may take a few minuts, <span>don’t close this page</span>',
+    loadingProcess: 'It may take a few minutes, <span>don’t close this page</span>',
 
     // step5
     getTheLinks: 'Get the Links',
@@ -83,7 +83,7 @@ export default {
 
     // step3
     _10: 'Ether will be stored in Linkdrop Contract to distribute into links.<br>You can stop the campaign anytime and get back your {{defaultSymbol}}.',
-    _15: 'You wil send {{eth}} {{symbol}} to start generate links',
+    _15: 'You will send {{eth}} {{symbol}} to start generate links',
     _16: '<span>{{eth}} {{symbol}}</span> — to distribute',
     _17: '<span>{{eth}} {{symbol}}</span> — service fee',
     _18: 'By service fees, we cover Gas costs for links distribution and our operation costs.',

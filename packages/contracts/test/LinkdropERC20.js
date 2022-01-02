@@ -56,12 +56,15 @@ let standardFee
 const initcode = '0x6352c7420d6000526103ff60206004601c335afa6040516060f3'
 const chainId = 4 // Rinkeby
 
+let feeReceiver
+let sponsoredFeeAmount
+
 describe('ETH/ERC20 linkdrop tests', () => {
   before(async () => {
     tokenInstance = await deployContract(linkdropMaster, ERC20Mock)
   })
 
-  it('should deploy master copy of linkdrop implementation', async () => {
+  it('deploy master copy of linkdrop implementation', async () => {
     masterCopy = await deployContract(linkdropMaster, LinkdropMastercopy, [], {
       gasLimit: 6000000
     })
@@ -106,6 +109,9 @@ describe('ETH/ERC20 linkdrop tests', () => {
       linkdropMaster
     )
 
+    feeReceiver = await proxy.feeReceiver()
+    sponsoredFeeAmount = await proxy.sponsoredFeeAmount()   
+    
     let linkdropMasterAddress = await proxy.linkdropMaster()
     expect(linkdropMasterAddress).to.eq(linkdropMaster.address)
 
@@ -453,7 +459,7 @@ describe('ETH/ERC20 linkdrop tests', () => {
     ).to.be.revertedWith('INVALID_LINKDROP_SIGNER_SIGNATURE')
   })
 
-  it('should succesfully claim tokens with valid claim params and send fee to relayer', async () => {
+  it('should succesfully claim tokens with valid claim params', async () => {
     // Approving tokens from linkdropMaster to Linkdrop Contract
     await tokenInstance.approve(proxy.address, tokenAmount)
 
@@ -498,6 +504,112 @@ describe('ETH/ERC20 linkdrop tests', () => {
     expect(receiverTokenBalance).to.eq(tokenAmount)
   })
 
+
+  it('should send fees to relayer if transaction is sponsored', async () => {
+    // Approving tokens from linkdropMaster to Linkdrop Contract
+    await tokenInstance.approve(proxy.address, tokenAmount)
+
+    link = await createLink(
+      linkdropSigner,
+      weiAmount,
+      tokenAddress,
+      tokenAmount,
+      expirationTime,
+      version,
+      chainId,
+      proxyAddress
+    )
+
+    receiverAddress = ethers.Wallet.createRandom().address
+    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+
+    const proxyBalanceBefore = await provider.getBalance(
+      proxy.address
+    )
+    const feeReceiverBalanceBefore = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    await factory.claim(
+      weiAmount,
+      tokenAddress,
+      tokenAmount,
+      expirationTime,
+      link.linkId,
+      linkdropMaster.address,
+      campaignId,
+      link.linkdropSignerSignature,
+      receiverAddress,
+      receiverSignature,
+      { gasLimit: 800000 }
+    )
+
+    const proxyBalanceAfter = await provider.getBalance(
+      proxy.address
+    )
+
+    const feeReceiverBalanceAfter = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    expect(proxyBalanceAfter).to.be.lt(proxyBalanceBefore)
+    expect(feeReceiverBalanceAfter).to.be.gt(feeReceiverBalanceBefore)    
+  })
+
+
+  it('should NOT send fees to relayer if transaction is not sponsored', async () => {
+    // Approving tokens from linkdropMaster to Linkdrop Contract
+    await tokenInstance.approve(proxy.address, tokenAmount)
+
+    link = await createLink(
+      linkdropSigner,
+      weiAmount,
+      tokenAddress,
+      tokenAmount,
+      expirationTime,
+      version,
+      chainId,
+      proxyAddress
+    )
+
+    receiverAddress = relayer.address
+    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+
+    const proxyBalanceBefore = await provider.getBalance(
+      proxy.address
+    )
+    const feeReceiverBalanceBefore = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    await factory.claim(
+      weiAmount,
+      tokenAddress,
+      tokenAmount,
+      expirationTime,
+      link.linkId,
+      linkdropMaster.address,
+      campaignId,
+      link.linkdropSignerSignature,
+      receiverAddress,
+      receiverSignature,
+      { gasLimit: 800000 }
+    )
+
+    const proxyBalanceAfter = await provider.getBalance(
+      proxy.address
+    )
+
+    const feeReceiverBalanceAfter = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    expect(proxyBalanceAfter).to.eq(proxyBalanceBefore)
+    expect(feeReceiverBalanceAfter).to.eq(feeReceiverBalanceBefore)    
+  })
+
+
+  
   it('should be able to check link claimed from factory instance', async () => {
     let claimed = await factory.isClaimedLink(
       linkdropMaster.address,
@@ -559,7 +671,7 @@ describe('ETH/ERC20 linkdrop tests', () => {
         receiverSignature,
         { gasLimit: 800000 }
       )
-    ).to.be.revertedWith('INSUFFICIENT_TOKENS')
+    ).to.be.revertedWith('INSUFFICIENT_ALLOWANCE')
   })
 
   it('should fail to claim tokens with fake linkdropMaster signature', async () => {
@@ -772,7 +884,7 @@ describe('ETH/ERC20 linkdrop tests', () => {
 
     let proxyEthBalanceAfter = await provider.getBalance(proxy.address)
     expect(proxyEthBalanceAfter).to.eq(
-      proxyEthBalanceBefore.sub(weiAmount)
+      proxyEthBalanceBefore.sub(weiAmount).sub(sponsoredFeeAmount)
     )
 
     let approverTokenBalanceAfter = await tokenInstance.balanceOf(

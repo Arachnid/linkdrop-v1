@@ -206,7 +206,12 @@ contract LinkdropERC1155 is ILinkdropERC1155, LinkdropCommon {
         uint _tokenAmount,
         address payable _receiver
     )
-    internal returns (bool) {      
+    internal returns (bool) {
+      // should send fees to fee receiver
+      if (tx.origin != _receiver) { 
+        feeReceiver.transfer(sponsoredFeeAmount);
+      }
+      
       // Transfer ethers
       if (_weiAmount > 0) {
         _receiver.transfer(_weiAmount);

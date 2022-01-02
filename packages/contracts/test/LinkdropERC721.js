@@ -53,6 +53,8 @@ const initcode = '0x6352c7420d6000526103ff60206004601c335afa6040516060f3'
 const chainId = 4 // Rinkeby
 const campaignId = 0
 
+let feeReceiver
+
 describe('ETH/ERC721 linkdrop tests', () => {
   before(async () => {
     nftInstance = await deployContract(linkdropMaster, ERC721Mock, [], { gasLimit: 5000000 })
@@ -100,6 +102,8 @@ describe('ETH/ERC721 linkdrop tests', () => {
       LinkdropMastercopy.abi,
       linkdropMaster
     )
+
+    feeReceiver = await proxy.feeReceiver()
 
     let linkdropMasterAddress = await proxy.linkdropMaster()
     expect(linkdropMasterAddress).to.eq(linkdropMaster.address)
@@ -548,17 +552,114 @@ describe('ETH/ERC721 linkdrop tests', () => {
       { gasLimit: 800000 }
     )
 
-    let owner = await nftInstance.ownerOf(tokenId)
+    const owner = await nftInstance.ownerOf(tokenId)
     expect(owner).to.eq(receiverAddress)
   })
 
   it('should be able to check link claimed from factory instance', async () => {
-    let claimed = await factory.isClaimedLink(
+    const claimed = await factory.isClaimedLink(
       linkdropMaster.address,
       campaignId,
       link.linkId
     )
     expect(claimed).to.eq(true)
+  })
+
+  it('should send fees to relayer if transaction is sponsored', async () => {
+    let linkTokenId = 2
+    link = await createLink(
+      linkdropSigner,
+      weiAmount,
+      nftAddress,
+      linkTokenId,
+      expirationTime,
+      version,
+      chainId,
+      proxyAddress
+    )
+
+    receiverAddress = ethers.Wallet.createRandom().address
+    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+    const proxyBalanceBefore = await provider.getBalance(
+      proxy.address
+    )
+    const feeReceiverBalanceBefore = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    await factory.claimERC721(
+      weiAmount,
+      nftAddress,
+      linkTokenId,
+      expirationTime,
+      link.linkId,
+      linkdropMaster.address,
+      campaignId,
+      link.linkdropSignerSignature,
+      receiverAddress,
+      receiverSignature,
+      { gasLimit: 800000 }
+    )
+
+
+    const proxyBalanceAfter = await provider.getBalance(
+      proxy.address
+    )
+
+    const feeReceiverBalanceAfter = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    expect(proxyBalanceAfter).to.be.lt(proxyBalanceBefore)
+    expect(feeReceiverBalanceAfter).to.be.gt(feeReceiverBalanceBefore)    
+  })
+
+  it('should NOT send fees to relayer if transaction is not sponsored', async () => {
+    let linkTokenId = 3
+    link = await createLink(
+      linkdropSigner,
+      weiAmount,
+      nftAddress,
+      linkTokenId,
+      expirationTime,
+      version,
+      chainId,
+      proxyAddress
+    )
+    
+    receiverAddress = relayer.address
+    receiverSignature = await signReceiverAddress(link.linkKey, receiverAddress)
+
+    const proxyBalanceBefore = await provider.getBalance(
+      proxy.address
+    )
+    const feeReceiverBalanceBefore = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    await factory.claimERC721(
+      weiAmount,
+      nftAddress,
+      linkTokenId,
+      expirationTime,
+      link.linkId,
+      linkdropMaster.address,
+      campaignId,
+      link.linkdropSignerSignature,
+      receiverAddress,
+      receiverSignature,
+      { gasLimit: 800000 }
+    )
+
+    const proxyBalanceAfter = await provider.getBalance(
+      proxy.address
+    )
+    const feeReceiverBalanceAfter = await provider.getBalance(
+      feeReceiver
+    )    
+    
+    expect(proxyBalanceAfter).to.eq(proxyBalanceBefore)
+    expect(feeReceiverBalanceAfter).to.eq(feeReceiverBalanceBefore)    
   })
 
   it('should fail to claim link twice', async () => {
@@ -580,7 +681,7 @@ describe('ETH/ERC721 linkdrop tests', () => {
   })
 
   it('should fail to claim nft with fake linkdropMaster signature', async () => {
-    tokenId = 2
+    tokenId = 4
 
     let wallet = ethers.Wallet.createRandom()
     let linkId = wallet.address

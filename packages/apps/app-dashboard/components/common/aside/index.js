@@ -32,7 +32,7 @@ class Aside extends React.Component {
       <div className={styles.mainBlock}>
         <div className={styles.logo}>
           <a href='/#/'>
-            <RetinaImage alwaysHighRes width={115} {...getImages({ src: 'logo' })} />
+            <RetinaImage alwaysHighRes width={135} {...getImages({ src: 'logo' })} />
           </a>
         </div>
         {this.renderNetworkName({ chainId })}

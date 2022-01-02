@@ -6,7 +6,6 @@ import { ethers } from 'ethers'
 import classNames from 'classnames'
 import { Select, Input, PageHeader, PageLoader, Note } from 'components/common'
 import config from 'config-dashboard'
-import Immutable from 'immutable'
 import wallets from 'wallets'
 import { TokenAddressInput, LinksContent, NextButton, AddEthField, EthTexts } from 'components/pages/common'
 import { convertFromExponents } from '@linkdrop/commons'
@@ -58,12 +57,12 @@ class Step1 extends React.Component {
   }
 
   createWalletOptions (chainId) {
-    return (['walletconnect', 'metamask', 'coinbase', 'imtoken', 'fortmatic', 'portis', 'opera'])
-      .filter(wallet => (wallets[wallet].chains || []).find(v => v === String(chainId)))
+    return (['metamask', 'walletconnect', 'coinbase', 'imtoken', 'fortmatic', 'portis', 'opera'])
+      // .filter(wallet => (wallets[wallet].chains || []).find(v => v === String(chainId)))
       .map(wallet => {
       const label = wallets[wallet].name
       return {
-        label: wallet === 'walletconnect' ? `Default: ${label}` : label,
+        label: wallet === 'metamask' ? `Default: ${label}` : label,
         value: wallet
       }
     })

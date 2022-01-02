@@ -11,6 +11,7 @@ import setProxyAddress from './set-proxy-address'
 import setId from './set-id'
 import setTokenIds from './set-token-ids'
 import setDefaultWallet from './set-default-wallet'
+import setSponsored from './set-sponsored'
 
 export default {
   setTokenAmount,
@@ -25,5 +26,6 @@ export default {
   setId,
   setProxyAddress,
   setTokenIds,
-  setDefaultWallet
+  setDefaultWallet,
+  setSponsored
 }
